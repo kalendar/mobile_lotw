@@ -42,6 +42,10 @@ path = '/var/www/mobile_lotw'
 if path not in sys.path:
    sys.path.insert(0, path)
 
+os.environ['DB_USERNAME'] = 'your_db_username'
+os.environ['DB_PASSWORD'] = 'your_db_password'
+os.environ['MOBILE_LOTW_SECRET_KEY'] = 'your_flaskapp_secretkey'
+
 from mobile_lotw.app import app as application
 ```
 You can create the necessary Postgres tables using the init_db.py file in the repo.
