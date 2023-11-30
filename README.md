@@ -42,7 +42,6 @@ path = '/var/www/mobile_lotw'
 if path not in sys.path:
    sys.path.insert(0, path)
 
-os.environ['LOTW_DB'] = '/var/www/mobile_lotw/mobile_lotw/lotw.db'
 from mobile_lotw.app import app as application
 ```
 You can create the necessary Postgres tables using the init_db.py file in the repo.
