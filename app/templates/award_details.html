@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+
+{% block content %}
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th class="center"> 
+				{% if award == "DXCC" %} 
+				DXCC Entity
+				{% elif award == "WAS" %} 
+				US State
+				{% elif award == "VUCC" %} 
+				Grid Square
+				{% elif award == "WPX" %} 
+				Prefix
+				{% else %} 
+				WAZ Zone
+				{% endif %}
+			</th>
+			<th style="text-align: center;">{{th}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for row in award_details %}
+			<tr>
+				<td class="center">
+					{{row.label}}
+				</td>
+				<td class="center">            
+					{{row.value|safe}}
+				</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

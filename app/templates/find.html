@@ -1,0 +1,16 @@
+{% extends "index.html" %}
+
+{% block content %}
+	{% if results %}
+	{{results|safe}}
+	{% else %}
+	{{error_msg}}
+	<br />
+	<div class="center">
+		<form action="/find" method="POST" name="actform">
+			<p><INPUT type="text" name="act" size=20 class = "form-control-lg"/></p>
+			<p><INPUT type="submit" value="Look for call sign"></p>
+		</form>
+	</div>
+	{% endif %}
+{% endblock %}

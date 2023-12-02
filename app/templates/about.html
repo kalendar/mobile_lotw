@@ -1,0 +1,55 @@
+{% extends "index.html" %} 
+
+{% block content %}
+<div style="text-align: left;" class="mt-3">
+  <h2>Why did you make Mobile LotW?</h2>
+  <p>
+    Soon after I earned my General license in 2021 I became frustrated by how
+    difficult it is to use the ARRL's
+    <a href="http://lotw.arrl.org/">Logbook of the World</a> website on mobile
+    phones. After waiting a few years for the ARRL to fix the problem, I decided
+    to fix it for myself. Then, as I got into the project, I figured why not
+    share my fix with others? The result is Mobile LotW.
+  </p>
+
+  <h2>How does Mobile LotW work?</h2>
+  <p>
+    When you view a page in Mobile LotW, like the DXCC Award Info page, what
+    happens behind the scenes is Mobile LotW downloads your DXCC Award Info page
+    from LotW, reformats it to look nice on your phone, and then shows it to
+    you. That's it!
+  </p>
+
+  <h2>Does Mobile LotW store my LotW password?</h2>
+  <p>
+    Mobile LotW does NOT store your LotW password. When you enter your LotW
+    username and password into Mobile LotW and click the Login button, your
+    username and password is used to log you into the LotW site in the
+    background. Then the page you requested is downloaded and reformatted for
+    your phone.
+  </p>
+
+  <h2>How do I get involved in Mobile LotW?</h2>
+  <p>
+    Mobile LotW is open source software, built with Python and Flask, which
+    means you can contribute to its development! Check out the Mobile LotW repo
+    on <a href="https://github.com/kalendar/mobile_lotw">GitHub</a>. If you have
+    problems with Mobile LotW, submit an Issue on Github. And if you have an
+    idea for a new feature, you can suggest it the same way. Better yet, you can
+    code up the improvement or new feature yourself and submit a pull request!
+  </p>
+
+  <h2>Who made Mobile LotW?</h2>
+  <p>
+    I'm David, WV8O. You can find me on
+    <a href="https://www.qrz.com/db/wv8edu">QRZ</a>. Please send questions or
+    comments about Mobile LotW to info at mobilelotw.org.
+  </p>
+
+  <h2>I love Mobile LotW! How can I support it?</h2>
+  <p>
+    You can support Mobile LotW by sending a donation via
+    <a href="https://paypal.me/opencontent">PayPal</a>.
+  </p>
+</div>
+{% endblock %}
