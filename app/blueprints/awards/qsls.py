@@ -59,24 +59,12 @@ def qsls():
         session.add_all(current_qsls)
 
         new_qsls = []
-
         for current_qsl in current_qsls:
-            found = False
-            for previous_qsl in previous_qsls:
-                if (
-                    current_qsl.band == previous_qsl.band
-                    and current_qsl.details == previous_qsl.details
-                    and current_qsl.mode == previous_qsl.mode
-                    and current_qsl.worked == previous_qsl.worked
-                ):
-                    current_qsls.remove(current_qsl)
-                    found = True
-
-            if not found:
+            if current_qsl not in previous_qsls:
                 new_qsls.append(current_qsl)
 
         return render_template(
-            "qsl.html",
+            "qsls.html",
             new_qsls=new_qsls,
             previous_qsls=previous_qsls,
             qsls_page_url=QSLS_PAGE_URL,

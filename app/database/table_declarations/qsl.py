@@ -29,4 +29,14 @@ class QSL(Base):
         super().__init__()
 
     def __eq__(self, __value: object) -> bool:
-        return super().__eq__(__value)
+        if isinstance(__value, QSL):
+            return (
+                __value.worked == self.worked
+                and __value.band == self.band
+                and __value.mode == self.mode
+                and __value.details == self.details
+            )
+        return False
+
+    def __ne__(self, __value: object) -> bool:
+        return not self.__eq__(__value=__value)

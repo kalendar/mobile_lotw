@@ -7,8 +7,6 @@ from sqlalchemy.orm import sessionmaker
 
 from .table_declarations import Base
 
-DB_NAME = "mobile_lotw.db"
-
 
 def db_file_present(instance_path: str, db_name: str) -> bool:
     """
@@ -94,5 +92,5 @@ def init_db(instance_path: str, db_name: str) -> sessionmaker:
     return create_session(engine)
 
 
-def get_sessionmaker(db_name: str = DB_NAME) -> sessionmaker:
+def get_sessionmaker(db_name) -> sessionmaker:
     return init_db((Path(__file__) / "../../../").resolve(), db_name)

@@ -2,24 +2,24 @@
 
 {% block content %}
 <table class="table table-striped">
-	<thead>
-		<tr>
-			<th>State</th>
-			<th>CW</th>
-			<th>Phone</th>
-			<th>Digital</th>
-		</tr>
-	</thead>
-	<tbody>
-	{% for triple in triples %}
-		<tr>
-			<td>{{ triple.state }}</td>
-			<td>{{ triple.cw | safe }}</td>
-			<td>{{ triple.phone | safe }}</td>
-			<td>{{ triple.digital | safe }}</td>
-		</tr>
-	{% endfor %}
-	</tbody>
+  <thead>
+    <tr>
+      <th>State</th>
+      <th>CW</th>
+      <th>Phone</th>
+      <th>Digital</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for triple in triples %}
+    <tr>
+      <td>{{ triple.state }}</td>
+      <td>{{ triple.cw | safe }}</td>
+      <td>{{ triple.phone | safe }}</td>
+      <td>{{ triple.digital | safe }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
 </table>
 
 <em>* indicates award has been issued</em>

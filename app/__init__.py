@@ -18,7 +18,7 @@ def create_app() -> Flask:
     app.permanent_session_lifetime = timedelta(days=365)
 
     app.config.from_mapping(
-        SESSION_MAKER=get_sessionmaker(),
+        SESSION_MAKER=get_sessionmaker(getenv("DB_NAME")),
         REQUEST_SESSION=requests.Session(),
     )
 

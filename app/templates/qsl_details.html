@@ -2,18 +2,18 @@
 
 {% block content %}
 <table class="table ">
-	<tbody>
-		{% for qsl_detail in qsl_details %}
-		<tr>
-			<td style="text-align: left; background-color: #e3f2fd;"">            
-				<b>{{qsl_detail.label}}</b>
-			</td>
-			<td style="text-align: left; background-color: #e3f2fd;">            
-			{{qsl_detail.value}}
-			</td>
-		</tr>
-		{% endfor %}
-	</tbody>
+  <tbody>
+    {% for qsl_detail in qsl_details %}
+    <tr>
+      <td style="text-align: left; background-color: #e3f2fd;"">            
+        <b>{{qsl_detail.label}}</b>
+      </td>
+      <td style="text-align: left; background-color: #e3f2fd;">            
+      {{qsl_detail.value}}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endblock %}
 
