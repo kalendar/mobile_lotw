@@ -5,21 +5,37 @@ import requests
 from flask import Flask, g, render_template, session
 
 from .blueprints import auth, awards
-from .blueprints.find import find
-from .blueprints.qsodetail import qsodetail
 from .database import get_sessionmaker
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    app.name = "Mobile LOTW"
+
+    # Check for required env vars
+    if not getenv("MOBILE_LOTW_SECRET_KEY"):
+        raise KeyError(
+            "OS Environment MOBILE_LOTW_SECRET_KEY not found! Maybe you need to set a .env?"
+        )
+
+    # Check for optional env vars
+    if not getenv("DB_NAME"):
+        app.logger.warn("No DB_NAME found. Defaulting to 'mobile_lotw.db'.")
+    if not getenv("SESSION_CACHE_EXPIRATION"):
+        app.logger.warn(
+            "No SESSION_CACHE_EXPIRATION found. Defaulting to '30' minutes."
+        )
 
     # Configure the application
     app.secret_key = getenv("MOBILE_LOTW_SECRET_KEY")
     app.permanent_session_lifetime = timedelta(days=365)
 
     app.config.from_mapping(
-        SESSION_MAKER=get_sessionmaker(getenv("DB_NAME")),
+        SESSION_MAKER=get_sessionmaker(getenv("DB_NAME") or "mobile_lotw.db"),
         REQUEST_SESSION=requests.Session(),
+        SESSION_CACHE_EXPIRATION=int(getenv("SESSION_CACHE_EXPIRATION"))
+        if getenv("SESSION_CACHE_EXPIRATION")
+        else 30,
     )
 
     # Load cookies from flask session into request session
@@ -49,18 +65,5 @@ def create_app() -> Flask:
     # Blueprints
     app.register_blueprint(awards.bp)
     app.register_blueprint(auth.bp)
-
-    app.add_url_rule(
-        "/find",
-        endpoint="find",
-        view_func=find,
-        methods=["GET", "POST"],
-    )
-    app.add_url_rule(
-        "/qsodetail",
-        endpoint="qsodetail",
-        view_func=qsodetail,
-        methods=["GET"],
-    )
 
     return app

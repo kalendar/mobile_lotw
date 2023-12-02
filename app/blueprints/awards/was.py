@@ -1,59 +1,26 @@
-from bs4 import BeautifulSoup
-from flask import g, render_template, request
+from flask import g, render_template, request, session, url_for
 
 from ...urls import WAS_PAGE_URL
+from ...utils import get_award_details
 from ..auth.wrappers import login_required
-from .awards_dataclass import AwardsDetail
 from .base import bp
 
 
 @bp.get("/was")
 @login_required(next_page="awards.was")
 def was():
-    response = g.web_session.get(WAS_PAGE_URL)
-    op = request.cookies.get("op")
-    soup = BeautifulSoup(response.content, "html.parser")
-    table = soup.find("table", attrs={"id": "accountStatusTable"})
-
-    # Parse the table to get rows
-    rows = table.find_all("tr")
-    was_details: list[AwardsDetail] = []
-
-    # Skip the header row
-    for row in rows[1:]:
-        columns = row.find_all("td")
-        # Remove the link to Challenge, since it's just too big to
-        # display nicely on mobile
-        award_value = (
-            str(columns[0].find("a"))
-            .replace(' target="_new"', "")
-            .replace(' target="+new"', "")
-            if columns[0].find("a")
-            else columns[0].text
-        )
-
-        if "Triple" in award_value:
-            award_value = (
-                '<a href="https://mobilelotw.org/triple">Triple Play</a>'
-            )
-
-        if "5-Band" in award_value:
-            award_value = "5-Band"
-
-        current_row = AwardsDetail(
-            op=op,
-            award=award_value,
-            new=columns[1].text,
-            in_process=columns[2].text,
-            awarded=columns[3].text,
-            total=columns[4].text,
-        )
-
-        was_details.append(current_row)
+    was_details, was_parsed_at = get_award_details(
+        award="was",
+        g=g,
+        request=request,
+        session=session,
+    )
 
     return render_template(
         "award.html",
         awards=was_details,
+        parsed_at=was_parsed_at.strftime("%d/%m/%Y, %H:%M:%S"),
+        force_reload=url_for("awards.was", force_reload=True),
         page_url=WAS_PAGE_URL,
         award_name="WAS",
         title="WAS Award Info",

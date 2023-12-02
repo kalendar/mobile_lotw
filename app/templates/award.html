@@ -23,7 +23,12 @@
     {% endfor %}
   </tbody>
 </table>
-
+{% if parsed_at %}
+<p>Information last updated at {{parsed_at}}</p> 
+<a href="{{force_reload}}">Force update.</a>
+{% endif %}
+<br>
+<br>
 <a href="{{page_url}}" target="_new"><em>See full details on LotW</em></a> 
 {% endblock %}
 

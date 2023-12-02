@@ -1,10 +1,12 @@
 from bs4 import BeautifulSoup, Comment
 from flask import g, render_template, request
 
-from ..urls import DETAILS_PAGE_URL
-from .auth.wrappers import login_required
+from ...urls import DETAILS_PAGE_URL
+from ..auth.wrappers import login_required
+from .base import bp
 
 
+@bp.get("/qsodetail")
 @login_required(next_page="qsls")
 def qsodetail():
     response = g.web_session.get(DETAILS_PAGE_URL + request.args.get("qso"))

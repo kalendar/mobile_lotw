@@ -56,6 +56,7 @@ def accountcredits():
 
     soup = BeautifulSoup(response.content, "html.parser")
     table = soup.find("table", attrs={"id": "creditsTable"})
+
     rows = table.find_all("tr")
     award_details: list[AwardDetail] = []
 

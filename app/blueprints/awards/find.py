@@ -2,7 +2,8 @@ import re
 
 from flask import g, render_template, request
 
-from .auth.wrappers import login_required
+from ..auth.wrappers import login_required
+from .base import bp
 
 MATCH_YES = re.compile(
     r"Last upload for <b>[^<]+</b>&#58; \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}Z"
@@ -10,6 +11,7 @@ MATCH_YES = re.compile(
 MATCH_NO = re.compile(r"Last upload for <b>[^<]+</b>&#58; No log data found")
 
 
+@bp.route("/find", methods=["GET", "POST"])
 @login_required(next_page="find")
 def find():
     if request.method == "POST":
