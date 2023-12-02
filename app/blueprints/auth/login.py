@@ -17,14 +17,9 @@ from .base import bp
 
 @bp.route(
     "/login/",
-    defaults={"next_page": "awards.dxcc"},
     methods=["POST", "GET"],
 )
-@bp.route(
-    "/login/<next_page>",
-    methods=["POST", "GET"],
-)
-def login(next_page: str):
+def login():
     if request.method == "POST":
         payload = {
             "login": request.form.get("login"),
@@ -38,8 +33,8 @@ def login(next_page: str):
 
         if "postcard" in login_response.text:
             flash("LOTW login unsuccessful! Please try again.", "error")
-            if next_page:
-                return redirect(url_for("auth.login", next_page=next_page))
+            if request.args.get("next_page"):
+                return redirect(url_for(request.args.get("next_page")))
             else:
                 return redirect(url_for("auth.login"))
 
@@ -55,7 +50,9 @@ def login(next_page: str):
 
             expiration_date = datetime.now() + timedelta(days=365)
 
-            response = redirect(url_for(next_page))
+            response = redirect(
+                url_for(request.args.get("next_page") or "awards.dxcc")
+            )
             response.set_cookie(
                 key="op",
                 value=request.form.get("login").lower(),
