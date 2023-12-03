@@ -2,6 +2,7 @@ import re
 
 from flask import g, render_template, request
 
+from ...urls import FIND_PAGE_URL
 from ..auth.wrappers import login_required
 from .base import bp
 
@@ -17,9 +18,7 @@ def find():
     if request.method == "POST":
         act = request.form.get("act")
 
-        response = g.web_session.post(
-            "https://lotw.arrl.org/lotwuser/act", data={"act": act}
-        )
+        response = g.web_session.post(FIND_PAGE_URL, data={"act": act})
 
         if "Last upload" in response.text:
             match_yes = re.search(MATCH_YES, response.text)

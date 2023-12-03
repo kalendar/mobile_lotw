@@ -1,7 +1,7 @@
-from flask import g, render_template, request, session, url_for
+from flask import render_template, url_for
 
+from ...cache import get_award_details
 from ...urls import VUCC_PAGE_URL
-from ...utils import get_award_details
 from ..auth.wrappers import login_required
 from .base import bp
 
@@ -9,12 +9,7 @@ from .base import bp
 @bp.get("/vucc")
 @login_required(next_page="awards.vucc")
 def vucc():
-    vucc_details, was_parsed_at = get_award_details(
-        award="vucc",
-        g=g,
-        request=request,
-        session=session,
-    )
+    vucc_details, was_parsed_at = get_award_details(award="vucc")
 
     return render_template(
         "award.html",

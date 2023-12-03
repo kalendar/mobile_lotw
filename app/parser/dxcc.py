@@ -1,12 +1,11 @@
 from bs4 import BeautifulSoup
-from flask import Request
-from flask.ctx import _AppCtxGlobals
+from flask import g, request
 
-from ..awards_dataclass import AwardsDetail
+from ..dataclasses import AwardsDetail
 from ..urls import DXCC_PAGE_URL
 
 
-def dxcc(g: _AppCtxGlobals, request: Request) -> list[AwardsDetail]:
+def dxcc() -> list[AwardsDetail]:
     response = g.web_session.get(DXCC_PAGE_URL)
 
     op = request.cookies.get("op")

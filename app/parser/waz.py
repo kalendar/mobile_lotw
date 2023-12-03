@@ -1,12 +1,11 @@
 from bs4 import BeautifulSoup
-from flask import Request
-from flask.ctx import _AppCtxGlobals
+from flask import g, request
 
-from ..awards_dataclass import AwardsDetail
+from ..dataclasses import AwardsDetail
 from ..urls import WAZ_PAGE_URL
 
 
-def waz(g: _AppCtxGlobals, request: Request) -> list[AwardsDetail]:
+def waz() -> list[AwardsDetail]:
     response = g.web_session.get(WAZ_PAGE_URL)
 
     op = request.cookies.get("op")

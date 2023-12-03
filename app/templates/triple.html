@@ -24,5 +24,13 @@
 
 <em>* indicates award has been issued</em>
 <br />
+
+{% if parsed_at %}
+<p>Information last updated at {{parsed_at}}</p> 
+<a href="{{force_reload}}">Force update.</a>
+<br>
+<br>
+{% endif %}
+
 <a href="{{triple_page_url}}" target="_new"><em>See full details on LotW</em></a> 
 {% endblock %}

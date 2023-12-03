@@ -1,12 +1,11 @@
 from bs4 import BeautifulSoup
-from flask import Request
-from flask.ctx import _AppCtxGlobals
+from flask import g, request
 
-from ..awards_dataclass import AwardsDetail
+from ..dataclasses import AwardsDetail
 from ..urls import WPX_PAGE_URL
 
 
-def wpx(g: _AppCtxGlobals, request: Request) -> list[AwardsDetail]:
+def wpx() -> list[AwardsDetail]:
     response = g.web_session.get(WPX_PAGE_URL)
 
     op = request.cookies.get("op")

@@ -1,10 +1,8 @@
 from datetime import datetime, timezone
 
-from flask import Request, current_app
-from flask.ctx import _AppCtxGlobals
-from flask.sessions import SessionMixin
+from flask import current_app, g, request, session
 
-from .awards_dataclass import AwardsDetail
+from .dataclasses import AwardsDetail, TripleDetail
 from .parser import parse_award
 
 
@@ -20,10 +18,7 @@ def is_expired(datetime_obj: datetime | None) -> bool:
 
 def get_award_details(
     award: str,
-    request: Request,
-    g: _AppCtxGlobals,
-    session: SessionMixin,
-) -> tuple[list[AwardsDetail], datetime]:
+) -> tuple[list[AwardsDetail] | list[TripleDetail], datetime]:
     # Attempt to retrieve cached award from cookies
     award_details: list[AwardsDetail] | None = session.get(
         f"{award}_details", default=None
@@ -37,7 +32,7 @@ def get_award_details(
     # If a reload is requested, or data expired/missing
     if force_reload or is_expired(award_parsed_at) or not award_details:
         # Get it and cache it
-        award_details = parse_award(award=award, g=g, request=request)
+        award_details = parse_award(award=award)
         award_parsed_at = datetime.now(timezone.utc)
         session.update(
             {

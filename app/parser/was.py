@@ -1,12 +1,11 @@
 from bs4 import BeautifulSoup
-from flask import Request, url_for
-from flask.ctx import _AppCtxGlobals
+from flask import g, request, url_for
 
-from ..awards_dataclass import AwardsDetail
+from ..dataclasses import AwardsDetail
 from ..urls import WAS_PAGE_URL
 
 
-def was(g: _AppCtxGlobals, request: Request) -> list[AwardsDetail]:
+def was() -> list[AwardsDetail]:
     response = g.web_session.get(WAS_PAGE_URL)
 
     op = request.cookies.get("op")

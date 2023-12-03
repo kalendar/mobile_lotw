@@ -1,7 +1,7 @@
-from flask import g, render_template, request, session, url_for
+from flask import render_template, url_for
 
+from ...cache import get_award_details
 from ...urls import WAS_PAGE_URL
-from ...utils import get_award_details
 from ..auth.wrappers import login_required
 from .base import bp
 
@@ -9,12 +9,7 @@ from .base import bp
 @bp.get("/was")
 @login_required(next_page="awards.was")
 def was():
-    was_details, was_parsed_at = get_award_details(
-        award="was",
-        g=g,
-        request=request,
-        session=session,
-    )
+    was_details, was_parsed_at = get_award_details(award="was")
 
     return render_template(
         "award.html",
