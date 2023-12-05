@@ -1,12 +1,10 @@
 import re
 
 from bs4 import BeautifulSoup
-from flask import g, request
+from flask import current_app, g, request
 
 from ..dataclasses import Row
 from ..urls import ACCOUNT_CREDITS_URL
-
-STATES_COMPILED = re.compile(r"(?s).+ \((\w+)\)")
 
 
 def account_credits() -> tuple[str, list[Row], str, str]:
@@ -57,7 +55,7 @@ def account_credits() -> tuple[str, list[Row], str, str]:
         if request.args.get("awg_id") == "WAS":
             award_detail = Row(
                 label=re.sub(
-                    STATES_COMPILED,
+                    current_app.config["REGEX_CACHE"]["STATES_COMPILED"],
                     r"\1",
                     columns[0].text,
                 ),

@@ -6,6 +6,7 @@ from flask import Flask, g, render_template, session
 
 from .blueprints import auth, awards
 from .database import get_sessionmaker
+from .regex_cache import REGEX_CACHE
 
 
 def create_app() -> Flask:
@@ -36,6 +37,7 @@ def create_app() -> Flask:
         SESSION_CACHE_EXPIRATION=int(getenv("SESSION_CACHE_EXPIRATION"))
         if getenv("SESSION_CACHE_EXPIRATION")
         else 30,
+        REGEX_CACHE=REGEX_CACHE,
     )
 
     # Load cookies from flask session into request session

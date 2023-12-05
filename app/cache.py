@@ -7,6 +7,7 @@ from .parser import parse_award
 
 
 def is_expired(datetime_obj: datetime | None) -> bool:
+    # If there is no known parse time
     if not datetime_obj:
         return True
 
@@ -19,6 +20,17 @@ def is_expired(datetime_obj: datetime | None) -> bool:
 def get_award_details(
     award: str,
 ) -> tuple[list[AwardsDetail] | list[TripleDetail], datetime]:
+    """Get the cached, or parsed, information about an award. Retrieves new
+    information if the cache is expired.
+
+    Args:
+        award (str): The generic name of the award, like "dxcc" or "was"
+
+    Returns:
+        tuple[list[AwardsDetail] | list[TripleDetail], datetime]: Returns either
+        a list of award details, or triple details as the first argument, and
+        the time it was parsed as the second argument.
+    """
     # Attempt to retrieve cached award from cookies
     award_details: list[AwardsDetail] | None = session.get(
         f"{award}_details", default=None

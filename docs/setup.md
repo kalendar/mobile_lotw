@@ -14,6 +14,32 @@ Start the development server with either
 1. Enter the virtual environment
 2. Run ```flask --app app --debug run``` in the root directory  
 
+### Optional for VSC
+
+If you are running VS Code, I recommend installing these extensions:
+1. [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
+2. [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
+3. [isort](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
+
+And adding/changing the workspace settings with these:
+```json
+"isort.args":["--profile", "black", "--settings-file=pyproject.toml"],
+"flake8.args":["--config=.flake8"],
+"flake8.importStrategy":"fromEnvironment",
+"black-formatter.args": ["--line-length", "80"],
+"[python]": {
+	"editor.defaultFormatter": "ms-python.black-formatter",
+	"editor.formatOnSave": true,
+	"editor.wordBasedSuggestions": false,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": true
+	},
+},
+``` 
+You can change the workspace settings by typing `ctrl+shift+p`, then
+`workspace json`, and selecting "Preferences: Open Workspace 
+Settings (JSON)". Then, paste the above JSON into the file.
+
 ## For production
 
 ❗❗ Rename example.env to .env and change the default value(s) 

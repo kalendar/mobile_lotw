@@ -1,6 +1,6 @@
 import re
 
-from flask import g, render_template, request
+from flask import current_app, g, render_template, request
 
 from ...urls import FIND_PAGE_URL
 from ..auth.wrappers import login_required
@@ -15,14 +15,22 @@ MATCH_NO = re.compile(r"Last upload for <b>[^<]+</b>&#58; No log data found")
 @bp.route("/find", methods=["GET", "POST"])
 @login_required(next_page="find")
 def find():
+    # If requesting
     if request.method == "POST":
         act = request.form.get("act")
 
+        # Send request to LOTW and store response
         response = g.web_session.post(FIND_PAGE_URL, data={"act": act})
 
         if "Last upload" in response.text:
-            match_yes = re.search(MATCH_YES, response.text)
-            match_no = re.search(MATCH_NO, response.text)
+            match_yes = re.search(
+                current_app.config["REGEX_CACHE"]["MATCH_YES"],
+                response.text,
+            )
+            match_no = re.search(
+                current_app.config["REGEX_CACHE"]["MATCH_NO"],
+                response.text,
+            )
 
             if match_yes:
                 last_upload_info = match_yes.group(0).replace(

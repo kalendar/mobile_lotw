@@ -1,12 +1,10 @@
 import re
 
 from bs4 import BeautifulSoup
-from flask import g, request
+from flask import current_app, g, request
 
 from ..dataclasses import TripleDetail
 from ..urls import TRIPLE_PAGE_URL
-
-STATES_COMPILED = re.compile(r"(?s).+ \((\w+)\)")
 
 
 def triple() -> list[TripleDetail]:
@@ -26,7 +24,7 @@ def triple() -> list[TripleDetail]:
             op=op,
             # reduce states to abbreviations
             state=re.sub(
-                STATES_COMPILED,
+                current_app.config["REGEX_CACHE"]["STATES_COMPILED"],
                 r"\1",
                 columns[0].text,
             ),

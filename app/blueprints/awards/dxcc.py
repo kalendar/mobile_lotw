@@ -9,12 +9,14 @@ from .base import bp
 @bp.get("/dxcc")
 @login_required(next_page="awards.dxcc")
 def dxcc():
-    dxcc_details, was_parsed_at = get_award_details(award="dxcc")
+    dxcc_details, parsed_at = get_award_details(award="dxcc")
 
     return render_template(
         "award.html",
         awards=dxcc_details,
-        parsed_at=was_parsed_at.strftime("%d/%m/%Y, %H:%M:%S"),
+        # Let user know when the data was parsed in a readable format
+        parsed_at=parsed_at.strftime("%d/%m/%Y, %H:%M:%S"),
+        # Let user reload at will
         force_reload=url_for("awards.dxcc", force_reload=True),
         page_url=DXCC_PAGE_URL,
         award_name="DXCC",

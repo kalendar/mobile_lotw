@@ -1,4 +1,4 @@
-from flask import g, render_template, request
+from flask import render_template
 
 from ...parser import account_credits
 from ..auth.wrappers import login_required

@@ -9,12 +9,14 @@ from .base import bp
 @bp.get("/triple")
 @login_required(next_page="awards.triple")
 def triple():
-    triple_details, was_parsed_at = get_award_details(award="triple")
+    triple_details, parsed_at = get_award_details(award="triple")
 
     return render_template(
         "triple.html",
         triples=triple_details,
-        parsed_at=was_parsed_at.strftime("%d/%m/%Y, %H:%M:%S"),
+        # Let user know when the data was parsed in a readable format
+        parsed_at=parsed_at.strftime("%d/%m/%Y, %H:%M:%S"),
+        # Let user reload at will
         force_reload=url_for("awards.triple", force_reload=True),
         triple_page_url=TRIPLE_PAGE_URL,
         title="Triple Play Award Info",

@@ -14,7 +14,9 @@ def waz():
     return render_template(
         "award.html",
         awards=waz_details,
+        # Let user know when the data was parsed in a readable format
         parsed_at=was_parsed_at.strftime("%d/%m/%Y, %H:%M:%S"),
+        # Let user reload at will
         force_reload=url_for("awards.waz", force_reload=True),
         page_url=WAZ_PAGE_URL,
         award_name="WAZ",
