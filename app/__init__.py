@@ -4,7 +4,7 @@ from os import getenv
 import requests
 from flask import Flask, g, render_template, session
 
-from .blueprints import auth, awards
+from .blueprints import auth, awards, map
 from .database import get_sessionmaker
 from .regex_cache import REGEX_CACHE
 
@@ -67,5 +67,6 @@ def create_app() -> Flask:
     # Blueprints
     app.register_blueprint(awards.bp)
     app.register_blueprint(auth.bp)
+    app.register_blueprint(map.bp)
 
     return app
