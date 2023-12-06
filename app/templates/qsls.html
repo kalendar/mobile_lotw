@@ -1,0 +1,34 @@
+{% extends "index.html" %}
+
+{% block content %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Worked</th>
+      <th>Band</th>
+      <th>Mode</th>
+      <th>QSL</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for qsl in new_qsls %}
+    <tr>
+      <td class="new_contact">{{ qsl.worked }}</td>
+      <td class="new_contact">{{ qsl.band }}</td>
+      <td class="new_contact">{{ qsl.mode }}</td>
+      <td class="new_contact">{{ qsl.details | safe }}</td>
+    </tr>
+    {% endfor %}
+    {% for qsl in previous_qsls %}
+    <tr>
+      <td>{{ qsl.worked }}</td>
+      <td>{{ qsl.band }}</td>
+      <td>{{ qsl.mode }}</td>
+      <td>{{ qsl.details | safe }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{{qsls_page_url}}" target="_new"><em>See full details on LotW</em></a>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+
+{% block content %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>{{award_name}} Award</th>
+      <th>New QSLs</th>
+      <th>QSLs In Process</th>
+      <th>Credits Awarded</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for award in awards %}
+      <tr>
+        <td>{{award.award|safe}}</td>
+        <td>{{award.new}}</td>
+        <td>{{award.in_process}}</td>
+        <td>{{award.awarded}}</td>
+        <td>{{award.total}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if parsed_at %}
+<p>Information last updated at {{parsed_at}}</p> 
+<a href="{{force_reload}}">Force update.</a>
+<br>
+<br>
+{% endif %}
+
+<a href="{{page_url}}" target="_new"><em>See full details on LotW</em></a> 
+{% endblock %}
+
