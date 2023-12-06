@@ -1,1 +1,1 @@
-from . import auth, awards
+from . import auth, awards, map
