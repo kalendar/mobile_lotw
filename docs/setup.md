@@ -64,9 +64,9 @@ sudo chown -R www-data:www-data /var/www/mobile_lotw/mobile_lotw
 			Allow from all
 		</Directory>
 
-		Alias /static /var/www/mobile_lotw/mobile_lotw/static
+		Alias /static /var/www/mobile_lotw/mobile_lotw/app/static
 		
-		<Directory /var/www/mobile_lotw/mobile_lotw/static/>
+		<Directory /var/www/mobile_lotw/mobile_lotw/app/static/>
 			Order allow,deny
 			Allow from all
 		</Directory>
