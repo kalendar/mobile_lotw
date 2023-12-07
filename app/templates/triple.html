@@ -22,15 +22,10 @@
   </tbody>
 </table>
 
-<em>* indicates award has been issued</em>
-<br />
+<p><a href="{{triple_page_url}}" target="_new"><em>See full details on LotW</em></a>.</p> 
 
 {% if parsed_at %}
-<p>Information last updated at {{parsed_at}}</p> 
-<a href="{{force_reload}}">Force update.</a>
-<br>
+<p>Info downloaded at {{parsed_at}}. <a href="{{force_reload}}">Update now.</a></p>
 <br>
 {% endif %}
-
-<a href="{{triple_page_url}}" target="_new"><em>See full details on LotW</em></a> 
 {% endblock %}

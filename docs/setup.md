@@ -8,6 +8,7 @@ Either run ```setup.[bat|sh]``` or:
 1. Create a virtual environment at the root named .venv 
 2. Enter the virtual environment
 3. Install requirements.txt with ```pip install -r requirements.txt```
+4. Rename example.env to .env and update its values.
 
 Start the development server with either 
 ```start_development_server.[bat|sh]``` or:
@@ -42,15 +43,20 @@ Settings (JSON)". Then, paste the above JSON into the file.
 
 ## For production
 
-❗❗ Rename example.env to .env and change the default value(s) 
+❗❗ Make the Apache user (www-data) the owner of the directory and files.
+```sh
+sudo chown -R www-data:www-data /var/www/mobile_lotw/mobile_lotw
+```
 
 ### Example Apache config file:
 
 ```xml
 <IfModule mod_ssl.c>
+  WSGIPythonHome /var/www/mobile_lotw/mobile_lotw/.venv
 	<VirtualHost *:443>
 		ServerName mobilelotw.org
 		ServerAdmin youremail@here.com
+		WSGIDaemonProcess app python-home=/var/www/mobile_lotw/mobile_lotw/.venv python-path=/var/www/mobile_lotw/mobile_lotw
 		WSGIScriptAlias /app /var/www/mobile_lotw/mobile_lotw.wsgi
 
 		<Directory /var/www/mobile_lotw/mobile_lotw/>
@@ -79,13 +85,23 @@ Settings (JSON)". Then, paste the above JSON into the file.
 ### Example mobile_lotw.wsgi file:
 
 ```py
+import os
 import sys
 path = '/var/www/mobile_lotw'
-
 if path not in sys.path:
    sys.path.insert(0, path)
 
-os.environ['MOBILE_LOTW_SECRET_KEY'] = 'your_flaskapp_secretkey'
+# Key to encode session information.
+os.environ['MOBILE_LOTW_SECRET_KEY'] = 'your_secret_here'
 
-from mobile_lotw.app import app as application
+# Name of the sqlite database.
+os.environ['DB_NAME'] = 'mobile_lotw.db'
+
+# Time in minutes before expiring cached information.
+os.environ['SESSION_CACHE_EXPIRATION'] = '30'
+
+
+from mobile_lotw.app import create_app
+
+application = create_app()
 ```
