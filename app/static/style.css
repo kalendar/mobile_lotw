@@ -16,3 +16,16 @@ td {
 .center{
   text-align: center;
 }
+
+#map {
+  min-height: 0;
+  height: 90vh;
+}
+
+#map .leaflet-popup-content p{
+  margin: 0.5rem 0;
+}
+
+#map .leaflet-popup-content p{
+  margin: 0.5rem 0;
+}

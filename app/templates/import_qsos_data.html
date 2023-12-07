@@ -1,0 +1,30 @@
+{% extends "index.html" %} 
+
+{% block content %}
+<h1>We're importing your data from LoTW...</h1>
+<h2>This can take a long time, please wait til we're done!</h2>
+{% endblock %} 
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/api/v1/import_qsos_data", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.url;
+        }
+      })
+      .then((url) => {
+        window.location.href = url;
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  });
+</script>
+{% endblock %}

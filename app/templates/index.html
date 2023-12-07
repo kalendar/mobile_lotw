@@ -34,6 +34,8 @@
       src="https://kit.fontawesome.com/8c5441708a.js"
       crossorigin="anonymous"
     ></script>
+    
+    {% block header_links %}{% endblock %}
 
     <title>{{title}}</title>
 
@@ -69,5 +71,6 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% block scripts %}{% endblock %}
   </body>
 </html>
