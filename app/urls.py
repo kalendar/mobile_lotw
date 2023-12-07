@@ -9,3 +9,4 @@ QSLS_PAGE_URL = "https://lotw.arrl.org/lotwuser/qsos?qso_query=1&awg_id=DXCC&ac_
 DETAILS_PAGE_URL = "https://lotw.arrl.org/lotwuser/qsodetail?qso="  # noqa
 FIND_PAGE_URL = "https://lotw.arrl.org/lotwuser/act"  # noqa
 ACCOUNT_CREDITS_URL = "https://lotw.arrl.org/lotwuser/accountcredits?"  # noqa
+QSOS_URL = "https://lotw.arrl.org/lotwuser/lotwreport.adi?qso_query=1&qso_withown=yes&qso_qslsince={}&qso_qsldetail=yes&qso_mydetail=yes&qso_owncall=&download_rpt_btn=Download+report"  # noqa

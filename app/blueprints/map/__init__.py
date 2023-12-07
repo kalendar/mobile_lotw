@@ -1,1 +1,2 @@
-from .base import bp, map
+from .base import bp
+from .map import view

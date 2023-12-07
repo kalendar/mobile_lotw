@@ -1,14 +1,15 @@
 import re
 
 from bs4 import BeautifulSoup
-from flask import current_app, g, request
+from flask import current_app, request
 
+from .. import lotw
 from ..dataclasses import TripleDetail
 from ..urls import TRIPLE_PAGE_URL
 
 
 def triple() -> list[TripleDetail]:
-    response = g.get("web_session").get(TRIPLE_PAGE_URL)
+    response = lotw.get(TRIPLE_PAGE_URL)
 
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")

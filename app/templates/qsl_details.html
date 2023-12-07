@@ -3,27 +3,49 @@
 {% block content %}
 <table class="table ">
   <tbody>
-    {% for row in qsl_detail.rows %}
+    {% set user, other = qso_report.table_values() %}
+    {% for label, value in user.items() %}
       <tr>
         <td 
           style="text-align: left; 
-          {% if row.label == 'Call Sign' or row.label == 'Worked' %} 
+          {% if loop.first %} 
           background-color: #e3f2fd;
           {% endif %}"
         >            
-          <b>{{ row.label }}</b>
+          <b>{{ label }}</b>
         </td>
         
         <td 
           style="text-align: left; 
-          {% if row.label == 'Call Sign' or row.label == 'Worked' %} 
+          {% if loop.first %} 
           background-color: #e3f2fd;
           {% endif %}"
         >              
-          {{ row.value }}
+          {{ value }}
         </td>
       </tr>
     {% endfor %}
+    {% for label, value in other.items() %}
+    <tr>
+      <td 
+        style="text-align: left; 
+        {% if loop.first %} 
+        background-color: #e3f2fd;
+        {% endif %}"
+      >            
+        <b>{{ label }}</b>
+      </td>
+      
+      <td 
+        style="text-align: left; 
+        {% if loop.first %} 
+        background-color: #e3f2fd;
+        {% endif %}"
+      >              
+        {{ value }}
+      </td>
+    </tr>
+  {% endfor %}
   </tbody>
 </table>
 {% endblock %}

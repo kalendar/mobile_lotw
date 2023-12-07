@@ -1,8 +1,9 @@
 import re
 
 from bs4 import BeautifulSoup
-from flask import current_app, g, request
+from flask import current_app, request
 
+from .. import lotw
 from ..dataclasses import Row
 from ..urls import ACCOUNT_CREDITS_URL
 
@@ -18,7 +19,7 @@ def account_credits() -> tuple[str, list[Row], str, str]:
         + "&ac_view=allc"
     )
 
-    response = g.web_session.get(f"{ACCOUNT_CREDITS_URL}{url_args}")
+    response = lotw.get(f"{ACCOUNT_CREDITS_URL}{url_args}")
 
     if request.args.get("awg_id") == "WAS":
         # Pass WAS to the table in the view on the next page

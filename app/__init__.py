@@ -1,10 +1,11 @@
 from datetime import timedelta
+from logging import DEBUG, INFO, WARN
 from os import getenv
 
 import requests
-from flask import Flask, g, render_template, session
+from flask import Flask, render_template
 
-from .blueprints import auth, awards, map
+from .blueprints import api, auth, awards, map
 from .database import get_sessionmaker
 from .regex_cache import REGEX_CACHE
 
@@ -14,10 +15,13 @@ def create_app() -> Flask:
     app.name = "Mobile LOTW"
 
     # Check for required env vars
+    common_message = (
+        "OS Environment {} not found! Maybe you need to set a .env?"
+    )
     if not getenv("MOBILE_LOTW_SECRET_KEY"):
-        raise KeyError(
-            "OS Environment MOBILE_LOTW_SECRET_KEY not found! Maybe you need to set a .env?"
-        )
+        raise KeyError(common_message.format("MOBILE_LOTW_SECRET_KEY"))
+    if not getenv("MOBILE_LOTW_DB_KEY"):
+        raise KeyError(common_message.format("MOBILE_LOTW_DB_KEY"))
 
     # Check for optional env vars
     if not getenv("DB_NAME"):
@@ -32,6 +36,7 @@ def create_app() -> Flask:
     app.permanent_session_lifetime = timedelta(days=365)
 
     app.config.from_mapping(
+        MOBILE_LOTW_DB_KEY=getenv("MOBILE_LOTW_DB_KEY"),
         SESSION_MAKER=get_sessionmaker(getenv("DB_NAME") or "mobile_lotw.db"),
         REQUEST_SESSION=requests.Session(),
         SESSION_CACHE_EXPIRATION=int(getenv("SESSION_CACHE_EXPIRATION"))
@@ -40,16 +45,8 @@ def create_app() -> Flask:
         REGEX_CACHE=REGEX_CACHE,
     )
 
-    # Load cookies from flask session into request session
-    @app.before_request
-    def before_request():
-        if session.get("web_session_cookies"):
-            g.web_session = app.config.get("REQUEST_SESSION")
-            g.web_session.cookies = requests.utils.cookiejar_from_dict(
-                session.get("web_session_cookies")
-            )
-        else:
-            g.web_session = None
+    # Logging level
+    app.logger.level = INFO
 
     # Primary routes
     @app.get("/")
@@ -68,5 +65,6 @@ def create_app() -> Flask:
     app.register_blueprint(awards.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(map.bp)
+    app.register_blueprint(api.bp)
 
     return app

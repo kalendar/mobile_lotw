@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
-from flask import g, request
+from flask import request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .. import lotw
 from ..database.table_declarations import QSL
 from ..urls import QSLS_PAGE_URL
 
@@ -10,7 +11,7 @@ from ..urls import QSLS_PAGE_URL
 def qsls(
     session: Session,
 ) -> tuple[list[QSL], list[QSL]]:
-    response = g.web_session.get(QSLS_PAGE_URL)
+    response = lotw.get(QSLS_PAGE_URL)
 
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")

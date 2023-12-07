@@ -1,5 +1,8 @@
+from typing import Any
+
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.types import JSON
 
 # This allows for alembic to do migrations with sqlite.
 convention = {
@@ -13,3 +16,7 @@ convention = {
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=convention)
+
+    type_annotation_map = {
+        dict[str, Any]: JSON,
+    }
