@@ -36,7 +36,11 @@ def create_db_file(instance_path: str, db_name: str):
         file.close()
 
 
-def create_db(instance_path: str, db_name: str) -> Engine:
+def create_db(
+    instance_path: str,
+    db_name: str,
+    create_file: bool = False,
+) -> Engine:
     """
     Create DB and initialize tables/engine.
 
@@ -44,7 +48,9 @@ def create_db(instance_path: str, db_name: str) -> Engine:
         instance_path (str): Path to DB.
     """
 
-    create_db_file(instance_path, db_name)
+    if create_file:
+        create_db_file(instance_path, db_name)
+
     engine: Engine = set_engine(instance_path, db_name)
     Base.metadata.create_all(bind=engine)
     return engine
@@ -84,10 +90,11 @@ def init_db(instance_path: str, db_name: str) -> sessionmaker:
     Returns:
         sessionmaker: sessionmaker.
     """
-    if not db_file_present(instance_path, db_name):
-        engine: Engine = create_db(instance_path, db_name)
-    else:
-        engine: Engine = set_engine(instance_path, db_name)
+    engine: Engine = create_db(
+        instance_path=instance_path,
+        db_name=db_name,
+        create_file=db_file_present(instance_path, db_name),
+    )
 
     return create_session(engine)
 
