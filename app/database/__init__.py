@@ -90,14 +90,15 @@ def init_db(instance_path: str, db_name: str) -> sessionmaker:
     Returns:
         sessionmaker: sessionmaker.
     """
+
     engine: Engine = create_db(
         instance_path=instance_path,
         db_name=db_name,
-        create_file=db_file_present(instance_path, db_name),
+        create_file=not db_file_present(instance_path, db_name),
     )
 
     return create_session(engine)
 
 
 def get_sessionmaker(db_name) -> sessionmaker:
-    return init_db((Path(__file__) / "../../../").resolve(), db_name)
+    return init_db((Path(__file__) / "../../../database").resolve(), db_name)

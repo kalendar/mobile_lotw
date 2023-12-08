@@ -15,4 +15,6 @@ __pycache__/
 # Environment file
 .env
 
+# Database related
 alembic/versions
+database
