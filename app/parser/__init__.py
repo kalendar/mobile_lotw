@@ -1,7 +1,6 @@
 from ..dataclasses import AwardsDetail, TripleDetail
 from .account_credits import account_credits
 from .dxcc import dxcc
-from .qsls import qsls
 from .qsodetail import qsodetail
 from .triple import triple
 from .vucc import vucc
