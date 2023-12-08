@@ -29,3 +29,9 @@ td {
 #map .leaflet-popup-content p{
   margin: 0.5rem 0;
 }
+
+@media only screen and (max-device-width: 812px) { 
+    .for_big_screens{
+      display: none;
+    }
+}

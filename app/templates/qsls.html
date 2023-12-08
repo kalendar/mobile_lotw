@@ -7,7 +7,7 @@
       <th>Worked</th>
       <th>Band</th>
       <th>Mode</th>
-      <th>QSO Timestamp</th>
+      <th class="for_big_screens">QSO Timestamp</th>
       <th>QSL</th>
     </tr>
   </thead>
@@ -17,7 +17,7 @@
       <td class="{{"new_contact" if not seen}}">{{ qsl.call }}</td>
       <td class="{{"new_contact" if not seen}}">{{ qsl.band }}</td>
       <td class="{{"new_contact" if not seen}}">{{ qsl.mode }}</td>
-      <td class="{{"new_contact" if not seen}}">{{ qsl.app_lotw_qso_timestamp }}</td>
+      <td class="for_big_screens {{"new_contact" if not seen}}">{{ qsl.app_lotw_qso_timestamp }}</td>
       <td class="{{"new_contact" if not seen}}"><a href="{{url_for("awards.qsodetail", id=qsl.id)}}">Details</a></td>
     </tr>
     {% endfor %}

@@ -18,7 +18,7 @@ from .base import bp
 @bp.get("/qsodetail")
 @login_required(next_page="qsls")
 def qsodetail():
-    qso_db_id = request.args.get("qso_id", default=None, type=int)
+    qso_db_id = request.args.get("id", default=None, type=int)
 
     # If trying to access something not in the db, fallback to calling lotw
     if not qso_db_id:

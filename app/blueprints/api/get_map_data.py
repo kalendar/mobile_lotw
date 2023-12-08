@@ -16,6 +16,7 @@ from .base import bp
 @login_required()
 def get_map_data(as_json: bool = False):
     as_json = request.args.get("json", type=bool, default=False) or as_json
+    force_reload = request.args.get("force_reload", type=bool, default=False)
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         session_: Session
@@ -26,7 +27,7 @@ def get_map_data(as_json: bool = False):
 
         count = get_user_qsos_for_map_by_rxqso_count(user=user, session=session_)
 
-        if user.map_data_count == count:
+        if user.map_data_count == count and not force_reload:
             current_app.logger.info(f"Decoding marker locations for {user.op} from DB cache")
             marker_locations = user.map_data.decode("utf-8")
         else:
