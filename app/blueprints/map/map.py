@@ -10,5 +10,6 @@ from .base import bp
 def view():
     return render_template(
         "map.html",
+        title="QSL Map",
         marker_locations=get_map_data(),
     )

@@ -14,7 +14,6 @@ from .base import bp
 @bp.get("/qsls")
 @login_required(next_page="awards.qsls")
 def qsls():
-    number_of_qsls: int = request.args.get("show", default=0, type=int) or 25
     force_reload: bool = request.args.get(
         "force_reload", default=False, type=bool
     )
@@ -50,7 +49,7 @@ def qsls():
 
         qso_reports_len = len(user.qso_reports)
 
-        qsls = user.qso_reports[: min(qso_reports_len, number_of_qsls)]
+        qsls = user.qso_reports[: min(qso_reports_len, 25)]
 
         qsl_tuples = [(qsl, qsl.seen) for qsl in qsls]
 
@@ -63,5 +62,5 @@ def qsls():
             qsls_page_url=QSLS_PAGE_URL,
             parsed_at=user.qso_reports_last_update_time,
             force_reload=url_for("awards.qsls", force_reload=True),
-            title=f"{number_of_qsls} Most Recent QSLs",
+            title="25 Most Recent QSLs",
         )
