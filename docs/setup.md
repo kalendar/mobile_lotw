@@ -2,13 +2,13 @@
 
 ## Setup development environment
 
-❗❗ Rename example.env to .env and change the default value(s) 
+❗❗ Rename example.env to .env and change the default value(s).
+❗❗ THE APP WILL NOT RUN UNTIL YOU COMPLETE THIS STEP. 
 
 Either run ```setup.[bat|sh]``` or:
 1. Create a virtual environment at the root named .venv 
 2. Enter the virtual environment
 3. Install requirements.txt with ```pip install -r requirements.txt```
-4. Rename example.env to .env and update its values.
 
 Start the development server with either 
 ```start_development_server.[bat|sh]``` or:

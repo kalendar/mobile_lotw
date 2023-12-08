@@ -1,0 +1,37 @@
+{% extends "index.html" %} 
+
+{% block content %}
+
+<p><h2>Importing data from LotW.</h2></p>
+<p><h2>This may take up to 3 minutes.</h2></p>
+<p>This import only happens the first time you login to Mobile LotW.</p>
+<p>The page will reload automatically when the import finishes.</p>
+<div class="spinner-grow text-primary" role="status">
+    <span class="sr-only">Loading...</span>
+</div>
+
+{% endblock %} 
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/api/v1/import_qsos_data", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.url;
+        }
+      })
+      .then((url) => {
+        window.location.href = url;
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  });
+</script>
+{% endblock %}

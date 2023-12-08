@@ -1,7 +1,8 @@
 import re
 
-from flask import current_app, g, render_template, request
+from flask import current_app, render_template, request
 
+from ... import lotw
 from ...urls import FIND_PAGE_URL
 from ..auth.wrappers import login_required
 from .base import bp
@@ -20,7 +21,7 @@ def find():
         act = request.form.get("act")
 
         # Send request to LOTW and store response
-        response = g.web_session.post(FIND_PAGE_URL, data={"act": act})
+        response = lotw.post(FIND_PAGE_URL, data={"act": act})
 
         if "Last upload" in response.text:
             match_yes = re.search(
