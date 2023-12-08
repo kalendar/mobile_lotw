@@ -1,12 +1,13 @@
 from bs4 import BeautifulSoup
-from flask import g, request
+from flask import request
 
+from .. import lotw
 from ..dataclasses import AwardsDetail
 from ..urls import DXCC_PAGE_URL
 
 
 def dxcc() -> list[AwardsDetail]:
-    response = g.web_session.get(DXCC_PAGE_URL)
+    response = lotw.get(DXCC_PAGE_URL)
 
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")

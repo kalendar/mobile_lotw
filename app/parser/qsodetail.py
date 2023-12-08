@@ -1,12 +1,13 @@
 from bs4 import BeautifulSoup
-from flask import g, request
+from flask import request
 
+from .. import lotw
 from ..dataclasses import QSODetail, Row
 from ..urls import DETAILS_PAGE_URL
 
 
 def qsodetail() -> QSODetail:
-    response = g.web_session.get(DETAILS_PAGE_URL + request.args.get("qso"))
+    response = lotw.get(DETAILS_PAGE_URL + request.args.get("qso"))
 
     soup = BeautifulSoup(response.content, "html.parser")
 

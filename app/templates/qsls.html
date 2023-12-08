@@ -7,28 +7,27 @@
       <th>Worked</th>
       <th>Band</th>
       <th>Mode</th>
+      <th class="for_big_screens">Date/Time</th>
       <th>QSL</th>
     </tr>
   </thead>
   <tbody>
-    {% for qsl in new_qsls %}
+    {% for qsl, seen in qsl_tuples %}
     <tr>
-      <td class="new_contact">{{ qsl.worked }}</td>
-      <td class="new_contact">{{ qsl.band }}</td>
-      <td class="new_contact">{{ qsl.mode }}</td>
-      <td class="new_contact">{{ qsl.details | safe }}</td>
-    </tr>
-    {% endfor %}
-    {% for qsl in previous_qsls %}
-    <tr>
-      <td>{{ qsl.worked }}</td>
-      <td>{{ qsl.band }}</td>
-      <td>{{ qsl.mode }}</td>
-      <td>{{ qsl.details | safe }}</td>
+      <td class="{{"new_contact" if not seen}}">{{ qsl.call }}</td>
+      <td class="{{"new_contact" if not seen}}">{{ qsl.band }}</td>
+      <td class="{{"new_contact" if not seen}}">{{ qsl.mode }}</td>
+      <td class="for_big_screens {{"new_contact" if not seen}}">{{ qsl.app_lotw_qso_timestamp }}</td>
+      <td class="{{"new_contact" if not seen}}"><a href="{{url_for("awards.qsodetail", id=qsl.id)}}">Details</a></td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
-<a href="{{qsls_page_url}}" target="_new"><em>See full details on LotW</em></a>.
+<p><a href="{{qsls_page_url}}" target="_new"><em>See full details on LotW</em></a>.</p> 
+
+{% if parsed_at %}
+<p>Info downloaded at {{parsed_at}}. <a href="{{force_reload}}">Update now.</a></p>
+<br>
+{% endif %}
 {% endblock %}

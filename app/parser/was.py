@@ -1,12 +1,13 @@
 from bs4 import BeautifulSoup
-from flask import g, request, url_for
+from flask import request, url_for
 
+from .. import lotw
 from ..dataclasses import AwardsDetail
 from ..urls import WAS_PAGE_URL
 
 
 def was() -> list[AwardsDetail]:
-    response = g.web_session.get(WAS_PAGE_URL)
+    response = lotw.get(WAS_PAGE_URL)
 
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")
