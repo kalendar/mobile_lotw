@@ -22,6 +22,8 @@ def create_app() -> Flask:
         raise KeyError(common_message.format("MOBILE_LOTW_SECRET_KEY"))
     if not getenv("MOBILE_LOTW_DB_KEY"):
         raise KeyError(common_message.format("MOBILE_LOTW_DB_KEY"))
+    if len(getenv("MOBILE_LOTW_DB_KEY")) != 16:
+        raise ValueError("MOBILE_LOTW_DB_KEY must be 16 characters!")
 
     # Check for optional env vars
     if not getenv("DB_NAME"):
