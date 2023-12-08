@@ -14,7 +14,7 @@
   <tbody>
     {% for qsl, seen in qsl_tuples %}
     <tr>
-      <td class="{{"new_contact" if not seen}}">{{ qsl.station_callsign }}</td>
+      <td class="{{"new_contact" if not seen}}">{{ qsl.call }}</td>
       <td class="{{"new_contact" if not seen}}">{{ qsl.band }}</td>
       <td class="{{"new_contact" if not seen}}">{{ qsl.mode }}</td>
       <td class="{{"new_contact" if not seen}}">{{ qsl.app_lotw_qso_timestamp }}</td>

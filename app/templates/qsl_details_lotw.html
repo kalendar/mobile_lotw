@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+
+{% block content %}
+<table class="table ">
+  <tbody>
+    {% for row in qsl_detail.rows %}
+      <tr>
+        <td 
+          style="text-align: left; 
+          {% if row.label == 'Call Sign' or row.label == 'Worked' %} 
+          background-color: #e3f2fd;
+          {% endif %}"
+        >            
+          <b>{{ row.label }}</b>
+        </td>
+        
+        <td 
+          style="text-align: left; 
+          {% if row.label == 'Call Sign' or row.label == 'Worked' %} 
+          background-color: #e3f2fd;
+          {% endif %}"
+        >              
+          {{ row.value }}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
