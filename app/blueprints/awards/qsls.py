@@ -54,8 +54,8 @@ def qsls():
         for qsl in qsls:
             qsl.seen = True
 
-        parsed_at = (
-            user.qso_reports_last_update_time.strftime("%d/%m/%Y, %H:%M:%S"),
+        parsed_at = user.qso_reports_last_update_time.strftime(
+            "%d/%m/%Y, %H:%M:%S"
         )
 
         return render_template(
