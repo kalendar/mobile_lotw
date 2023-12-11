@@ -13,7 +13,10 @@ __pycache__/
 *.db
 
 # Environment file
-.env
+*.env
+
+# Deploy script
+deploy.sh
 
 # Database related
 alembic/versions
