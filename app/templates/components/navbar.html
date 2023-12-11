@@ -18,23 +18,27 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav ms-auto">
         {% if session.logged_in %}
-        <a class="nav-link" href="{{url_for('awards.qsls')}}">Recent QSLs</a>
-        <a class="nav-link" href="{{url_for('awards.dxcc')}}">DXCC</a>
-        <a class="nav-link" href="{{url_for('awards.was')}}">WAS</a>
-        <a class="nav-link" href="{{url_for('awards.vucc')}}">VUCC</a>
-        <a class="nav-link" href="{{url_for('awards.wpx')}}">WPX</a>
-        <a class="nav-link" href="{{url_for('awards.waz')}}">WAZ</a>
-        <a class="nav-link" href="{{url_for('awards.find')}}">Find Call</a>
-        <a class="nav-link" href="{{url_for('map.view')}}">Map <i class="fa-solid fa-location-dot"></i></a>
+          <a class="nav-link" href="{{ url_for('awards.qsls') }}"
+            >Recent QSLs</a
+          >
+          <a class="nav-link" href="{{ url_for('awards.dxcc') }}">DXCC</a>
+          <a class="nav-link" href="{{ url_for('awards.was') }}">WAS</a>
+          <a class="nav-link" href="{{ url_for('awards.vucc') }}">VUCC</a>
+          <a class="nav-link" href="{{ url_for('awards.wpx') }}">WPX</a>
+          <a class="nav-link" href="{{ url_for('awards.waz') }}">WAZ</a>
+          <a class="nav-link" href="{{ url_for('awards.find') }}">Find Call</a>
+          <a class="nav-link" href="{{ url_for('map.view') }}"
+            >Map <i class="fa-solid fa-location-dot"></i
+          ></a>
         {% endif %}
-        <a class="nav-link" href="{{url_for('about')}}">About Mobile LotW</a>
+        <a class="nav-link" href="{{ url_for('about') }}">About Mobile LotW</a>
         <a class="nav-link" href="https://paypal.me/opencontent"
           >Support Mobile LotW</a
         >
         {% if not session.logged_in %}
-        <a class="nav-link" href="{{url_for('auth.login')}}">Login</a>
+          <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
         {% else %}
-        <a class="nav-link" href="{{url_for('auth.logout')}}">Logout</a>
+          <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
         {% endif %}
       </div>
     </div>

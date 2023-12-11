@@ -93,10 +93,12 @@ class QSOReport(Base):
         self.user = user
 
         if dataclass:
-            dataclass_dict = vars(dataclass)
-            for key, value in dataclass_dict.items():
-                if hasattr(self, key):
-                    setattr(self, key, value)
+            non_under_attrs = [
+                key for key in vars(QSOReport).keys() if key[0] != "_"
+            ]
+            for attr in non_under_attrs:
+                if hasattr(dataclass, attr):
+                    setattr(self, attr, getattr(dataclass, attr))
 
         for key, value in kw.items():
             if hasattr(self, key):

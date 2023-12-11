@@ -3,24 +3,38 @@
 ## Setup development environment
 
 ❗❗ Rename example.env to .env and change the default value(s).
-❗❗ THE APP WILL NOT RUN UNTIL YOU COMPLETE THIS STEP. 
 
-Either run ```setup.[bat|sh]``` or:
-1. Create a virtual environment at the root named .venv 
-2. Enter the virtual environment
-3. Install requirements.txt with ```pip install -r requirements.txt```
+❗❗ **The app will not run until you complete this step.** 
 
-Start the development server with either 
-```start_development_server.[bat|sh]``` or:
-1. Enter the virtual environment
-2. Run ```flask --app app --debug run``` in the root directory  
+Either run `setup.[bat|sh]` or:
+1. Create a virtual environment at the root named `.venv`.
+2. Enter the virtual environment.
+3. Install requirements.txt with `pip install -r requirements.txt`.
 
-### Optional for VSC
+Start the development server with either `start_development_server.[bat|sh]` or:
+1. Enter the virtual environment.
+2. Run `flask --app app --debug run` in the root directory  .
+
+### Optional packages
+
+Optional python packages for development are included in 
+`opt_dev_requirements.py`.
+1. Black Formatter for consistent code style.
+2. isort for nice `import`/`from` styling.
+3. Flake8 for code style Black doesn't catch.
+
+### Optional for Prettier
+
+Jinja templates are formatted by Prettier. The `.prettierrc` is configured to use 
+[prettier-plugin-jinja-template](https://github.com/davidodenwald/prettier-plugin-jinja-template)
+for proper Jinja support.
+
+### Optional for VS Code
 
 If you are running VS Code, I recommend installing these extensions:
 1. [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
-2. [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
-3. [isort](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
+2. [isort](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
+3. [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
 
 And adding/changing the workspace settings with these:
 ```json
