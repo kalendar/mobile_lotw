@@ -1,27 +1,27 @@
-{% extends "index.html" %} 
+{% extends "index.html" %}
 
 {% block content %}
-<h1>Register for Mobile LotW</h1>
+  <h1>Register for Mobile LotW</h1>
 
-<form method="post" action="{{ url_for('register') }}">
-  <p>
-    <label for="username">Mobile LotW Username:</label>
-    <input type="text" id="username" name="username" required />
-  </p>
-  <p>
-    <label for="password">Mobile LotW Password:</label>
-    <input type="password" id="password" name="password" required />
-  </p>
-  <p>
-    <label for="arrl_username">ARRL Username:</label>
-    <input type="text" id="arrl_username" name="arrl_username" required />
-  </p>
-  <p>
-    <label for="arrl_password">ARRL Password:</label>
-    <input type="password" id="arrl_password" name="arrl_password" required />
-  </p>
-  <p>
-    <input type="submit" value="Register" />
-  </p>
-</form>
+  <form method="post" action="{{ url_for('register') }}">
+    <p>
+      <label for="username">Mobile LotW Username:</label>
+      <input type="text" id="username" name="username" required />
+    </p>
+    <p>
+      <label for="password">Mobile LotW Password:</label>
+      <input type="password" id="password" name="password" required />
+    </p>
+    <p>
+      <label for="arrl_username">ARRL Username:</label>
+      <input type="text" id="arrl_username" name="arrl_username" required />
+    </p>
+    <p>
+      <label for="arrl_password">ARRL Password:</label>
+      <input type="password" id="arrl_password" name="arrl_password" required />
+    </p>
+    <p>
+      <input type="submit" value="Register" />
+    </p>
+  </form>
 {% endblock %}

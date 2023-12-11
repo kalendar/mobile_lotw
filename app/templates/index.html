@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <!-- Google tag (gtag.js) -->
@@ -34,10 +34,10 @@
       src="https://kit.fontawesome.com/8c5441708a.js"
       crossorigin="anonymous"
     ></script>
-    
+
     {% block header_links %}{% endblock %}
 
-    <title>{{title}}</title>
+    <title>{{ title }}</title>
 
     <link rel="shortcut icon" href="/static/favicon.ico" />
     <link
@@ -54,8 +54,8 @@
         <div class="row">
           <div class="col">
             {% include "components/flashes.html" %}
-            <h2>{{title}}</h2>
-            {% block content %} {{content|safe}} {% endblock %}
+            <h2>{{ title }}</h2>
+            {% block content %}{{ content|safe }}{% endblock %}
           </div>
         </div>
       </div>

@@ -1,19 +1,17 @@
-{% extends "index.html" %} 
+{% extends "index.html" %}
 
 {% block content %}
-<br />
-<form action="#" method="post" enctype=multipart/form-data>
-  <p>
-    <input
-      type="file"
-      name="historical_data"
-      id="historical_data"
-      accept=".adi"
-      class="form-control-lg"
-    />
-  </p>
-  <p>
-    <input type="submit" value="Parse Data" />
-  </p>
-</form>
+  <br />
+  <form>
+    <form action="#" method="post" enctype="multipart/form-data">
+      <input
+        type="file"
+        name="historical_data"
+        id="historical_data"
+        accept=".adi"
+        class="form-control-lg"
+      />
+      <input type="submit" value="Parse Data" />
+    </form>
+  </form>
 {% endblock %}
