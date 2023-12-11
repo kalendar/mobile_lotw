@@ -39,22 +39,13 @@ def import_qsos_data():
         current_app.logger.info(f"Parsed {len(qso_reports)} QSOs for {user.op}")
 
         for qso_report in qso_reports:
-            current_app.logger.info(
-                f"Adding QSO {qso_report.country} for {user.op}"
-            )
-
             report_exists = qso_report_exists(
                 app_lotw_qso_timestamp=qso_report.app_lotw_qso_timestamp,
                 session=session_,
             )
-
-            current_app.logger.info(
-                f"QSO {qso_report.country} {qso_report.app_lotw_qso_timestamp} {report_exists}"
-            )
-
             if not user.has_imported or not report_exists:
                 current_app.logger.info(
-                    f"Adding QSO at {qso_report.app_lotw_qso_timestamp} for {user.op}"
+                    f"Adding QSO at {qso_report.app_lotw_qso_timestamp} for {user.op} to DB"
                 )
                 user.qso_reports.append(
                     QSOReport(
