@@ -113,7 +113,7 @@ class QSOReport(Base):
     def table_values(self) -> tuple[dict[str, str], dict[str, str]]:
         user_details: dict[str, str] = {
             "Call Sign": self.station_callsign,
-            "DXCC": self.my_dxcc,
+            "DXCC": f"{self.my_country} ({self.my_dxcc})",
             "CQ Zone": self.my_cq_zone,
             "ITU Zone": self.my_itu_zone,
             "Grid": self.my_gridsquare,
@@ -129,7 +129,7 @@ class QSOReport(Base):
 
         other_details: dict[str, str] = {
             "Worked": self.call,
-            "DXCC": self.dxcc,
+            "DXCC": f"{self.country} ({self.dxcc})",
             "CQ Zone": self.cqz,
             "ITU Zone": self.ituz,
             "Grid": self.gridsquare,

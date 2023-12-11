@@ -4,7 +4,7 @@ from flask import current_app, render_template, request, session, url_for
 from sqlalchemy.orm import Session
 
 from ...cache import is_expired
-from ...database.queries import get_user
+from ...database.queries import get_most_recent_rxqsls, get_user
 from ...urls import QSLS_PAGE_URL
 from ..api.import_qsos_data import import_qsos_data
 from ..auth.wrappers import login_required
@@ -47,20 +47,22 @@ def qsls():
             )
             import_qsos_data()
 
-        qso_reports_len = len(user.qso_reports)
-
-        qsls = user.qso_reports[: min(qso_reports_len, 25)]
+        qsls = get_most_recent_rxqsls(user=user, session=session_)
 
         qsl_tuples = [(qsl, qsl.seen) for qsl in qsls]
 
         for qsl in qsls:
             qsl.seen = True
 
+        parsed_at = (
+            user.qso_reports_last_update_time.strftime("%d/%m/%Y, %H:%M:%S"),
+        )
+
         return render_template(
             "qsls.html",
             qsl_tuples=qsl_tuples,
             qsls_page_url=QSLS_PAGE_URL,
-            parsed_at=user.qso_reports_last_update_time,
+            parsed_at=parsed_at,
             force_reload=url_for("awards.qsls", force_reload=True),
             title="25 Most Recent QSLs",
         )
