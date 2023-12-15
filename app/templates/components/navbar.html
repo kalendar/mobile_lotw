@@ -32,9 +32,6 @@
           ></a>
         {% endif %}
         <a class="nav-link" href="{{ url_for('about') }}">About Mobile LotW</a>
-        <a class="nav-link" href="https://paypal.me/opencontent"
-          >Support Mobile LotW</a
-        >
         {% if not session.logged_in %}
           <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
         {% else %}
