@@ -19,8 +19,8 @@
           <td>{{ qsl.band }}</td>
           <td>{{ qsl.mode }}</td>
           <td class="for_big_screens">{{ qsl.app_lotw_qso_timestamp }}</td>
-          <td style="color: #FFA000;">
-            {{ '<i class="fa-solid fa-star"></i>'|safe if unique }}
+          <td>
+            {{ '<i style="color: #FFA000 !important;" class="fa-solid fa-star"></i>'|safe if unique }}
           </td>
           <td>
             <a href="{{ url_for("awards.qsodetail", id=qsl.id) }}">Details</a>
