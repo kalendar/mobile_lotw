@@ -8,19 +8,19 @@
         <th>Band</th>
         <th>Mode</th>
         <th class="for_big_screens">Date/Time</th>
-        <th></th>
+        <th>DXCC</th>
         <th>QSL</th>
       </tr>
     </thead>
     <tbody>
-      {% for qsl, seen, unique, credit_granted in qsl_tuples %}
+      {% for qsl, seen, unique in qsl_tuples %}
         <tr class="{{ "new_contact" if not seen }}">
           <td>{{ qsl.call }}</td>
           <td>{{ qsl.band }}</td>
           <td>{{ qsl.mode }}</td>
           <td class="for_big_screens">{{ qsl.app_lotw_qso_timestamp }}</td>
-          <td style="{{ "color: green" if credit_granted }}">
-            {{ '<i class="fa-solid fa-check"></i>'|safe if unique }}
+          <td style="color: #FFA000;">
+            {{ '<i class="fa-solid fa-star"></i>'|safe if unique }}
           </td>
           <td>
             <a href="{{ url_for("awards.qsodetail", id=qsl.id) }}">Details</a>
@@ -32,14 +32,13 @@
 
   <p>
     <a href="{{ qsls_page_url }}" target="_new"
-      ><em>See full details on LotW</em></a
-    >.
+      ><em>See full details on LotW</em></a>.
   </p>
 
   {% if parsed_at %}
     <p>
       Info downloaded at {{ parsed_at }}.<br />
-      <a href="{{ force_reload }}">Refresh now.</a>
+      <a href="{{ force_reload }}">Refresh now</a>.
     </p>
     <br />
   {% endif %}

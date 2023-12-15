@@ -50,7 +50,7 @@ def get_map_data(as_json: bool = False):
             ) in user_qso_reports:
                 existing = marker_locations.get(gridsquare)
 
-                report = f'<p>Worked: {call}</p><p>Band: {band}</p><p>Mode: {mode}</p><p>Date: {qso_timestamp}</p><a href="{url_for('awards.qsodetail', id=id)}">QSL Details</a>' # noqa
+                report = f'<p>Worked: {call}</p><p>Band: {band}</p><p>Mode: {mode}</p><p>Date: {qso_timestamp}</p><a href="{url_for("awards.qsodetail", id=id)}">QSL Details</a>' # noqa
 
                 if existing:
                     report = existing.get("report") + "<hr>" + report
