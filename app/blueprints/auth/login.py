@@ -74,12 +74,12 @@ def login():
 
     # If not logging in
     else:
-        # If known user, redirect to next_page or awards.dxcc
+        # If known user, redirect to next_page or awards.qsls
         # Preserves URI arguments
         if session.get("op"):
             return redirect(
                 url_for(
-                    request.args.get("next_page") or "awards.dxcc",
+                    request.args.get("next_page") or "awards.qsls",
                     **request.args,
                 )
             )

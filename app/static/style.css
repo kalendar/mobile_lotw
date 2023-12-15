@@ -8,7 +8,7 @@ td {
   text-align: center;
 }
 
-.new_contact {
+.new_contact *{
   color: red !important;
   font-weight: bold;
 }
@@ -30,7 +30,7 @@ td {
   margin: 0.5rem 0;
 }
 
-@media only screen and (max-device-width: 812px) { 
+@media screen and (max-width: 812px) { 
     .for_big_screens{
       display: none;
     }

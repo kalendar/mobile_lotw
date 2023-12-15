@@ -115,3 +115,44 @@ def get_user_qsos_for_map_by_rxqso_count(
     )
 
     return session.scalar(statement=stmt)
+
+
+def is_unique_qso(user: User, qso: QSOReport, session: Session) -> bool:
+    # fmt: off
+    CW = ["CW"]
+    DIGITAL_TYPES = [
+        "ATV", "FAX", "SSTV", "AMTOR", "ARDOP", "CHIP", "CLOVER",
+        "CONTESTI", "DOMINO", "FSK31", "FSK441", "FST4", "FT4",
+        "FT8", "GTOR", "HELL", "HFSK", "ISCAT", "JT4", "JT65",
+        "JT6M", "JT9", "MFSK16", "MFSK8", "MINIRTTY", "MSK144",
+        "MT63", "OLIVIA", "OPERA", "PACKET", "PACTOR", "PAX", "PSK10",
+        "PSK125", "PSK2K", "PSK31", "PSK63", "PSK63F", "PSKAM", "PSKFEC31",
+        "Q15", "Q65", "QRA64", "ROS", "RTTY", "RTTYM", "T10", "THOR", "THROB",
+        "VOI", "WINMOR", "WSPR", "IMAGE", "DATA"
+    ]
+    PHONE_TYPES = ["PHONE", "AM", "C4FM", "DIGITALVOICE", "DSTAR", "FM", "SSB"]
+    # fmt: on
+
+    if qso.mode in CW:
+        general_type = CW
+    elif qso.mode in DIGITAL_TYPES:
+        general_type = DIGITAL_TYPES
+    elif qso.mode in PHONE_TYPES:
+        general_type = PHONE_TYPES
+
+    stmt = (
+        select(func.count())
+        .select_from(QSOReport)
+        .join(User)
+        .where(
+            and_(
+                User.id == user.id,
+                QSOReport.mode.in_(general_type),
+                QSOReport.dxcc == qso.dxcc,
+                QSOReport.band == qso.band,
+                QSOReport.id != qso.id,
+            )
+        )
+    )
+
+    return not session.scalar(statement=stmt)

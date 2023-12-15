@@ -4,7 +4,8 @@ from flask import current_app, render_template, request, session, url_for
 from sqlalchemy.orm import Session
 
 from ...cache import is_expired
-from ...database.queries import get_most_recent_rxqsls, get_user
+from ...database.queries import get_most_recent_rxqsls, get_user, is_unique_qso
+from ...database.table_declarations import QSOReport
 from ...urls import QSLS_PAGE_URL
 from ..api.import_qsos_data import import_qsos_data
 from ..auth.wrappers import login_required
@@ -42,14 +43,22 @@ def qsls():
             or force_reload
             or is_expired(qso_reports_last_update_time, 60)
         ):
-            current_app.logger.info(
-                f"{user.op}'s QSO's are expired, importing."
-            )
+            current_app.logger.info(f"{user.op}'s QSOs are expired, importing.")
             import_qsos_data()
 
-        qsls = get_most_recent_rxqsls(user=user, session=session_)
+        qsls: list[QSOReport] = get_most_recent_rxqsls(
+            user=user, session=session_
+        )
 
-        qsl_tuples = [(qsl, qsl.seen) for qsl in qsls]
+        qsl_tuples = [
+            (
+                qsl,
+                qsl.seen,
+                is_unique_qso(user, qsl, session_),
+                qsl.app_lotw_credit_granted,
+            )
+            for qsl in qsls
+        ]
 
         for qsl in qsls:
             qsl.seen = True
