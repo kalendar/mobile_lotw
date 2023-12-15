@@ -3,7 +3,7 @@ from functools import wraps
 from flask import flash, redirect, session, url_for
 
 
-def login_required(next_page: str = "dxcc"):
+def login_required(next_page: str = "awards.qsls"):
     def decorator(view):
         @wraps(view)
         def decorated_view(*args, **kwargs):

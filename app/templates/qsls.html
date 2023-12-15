@@ -8,19 +8,21 @@
         <th>Band</th>
         <th>Mode</th>
         <th class="for_big_screens">Date/Time</th>
+        <th></th>
         <th>QSL</th>
       </tr>
     </thead>
     <tbody>
-      {% for qsl, seen in qsl_tuples %}
-        <tr>
-          <td class="{{ "new_contact" if not seen }}">{{ qsl.call }}</td>
-          <td class="{{ "new_contact" if not seen }}">{{ qsl.band }}</td>
-          <td class="{{ "new_contact" if not seen }}">{{ qsl.mode }}</td>
-          <td class="for_big_screens {{ "new_contact" if not seen }}">
-            {{ qsl.app_lotw_qso_timestamp }}
+      {% for qsl, seen, unique, credit_granted in qsl_tuples %}
+        <tr class="{{ "new_contact" if not seen }}">
+          <td>{{ qsl.call }}</td>
+          <td>{{ qsl.band }}</td>
+          <td>{{ qsl.mode }}</td>
+          <td class="for_big_screens">{{ qsl.app_lotw_qso_timestamp }}</td>
+          <td style="{{ "color: green" if credit_granted }}">
+            {{ '<i class="fa-solid fa-check"></i>'|safe if unique }}
           </td>
-          <td class="{{ "new_contact" if not seen }}">
+          <td>
             <a href="{{ url_for("awards.qsodetail", id=qsl.id) }}">Details</a>
           </td>
         </tr>
