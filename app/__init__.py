@@ -63,6 +63,11 @@ def create_app() -> Flask:
     def privacy():
         return render_template("privacy.html")
 
+    @app.get("/delete_account")
+    def delete_account():
+        return render_template("delete_account.html")
+
+
     # Blueprints
     app.register_blueprint(awards.bp)
     app.register_blueprint(auth.bp)
