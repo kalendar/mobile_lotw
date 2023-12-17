@@ -139,6 +139,8 @@ def is_unique_qso(user: User, qso: QSOReport, session: Session) -> bool:
         general_type = DIGITAL_TYPES
     elif qso.mode in PHONE_TYPES:
         general_type = PHONE_TYPES
+    else:
+        general_type = DIGITAL_TYPES
 
     stmt = (
         select(func.count())
