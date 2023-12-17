@@ -40,10 +40,13 @@ def qso_report_exists(
     )
 
 
-def get_most_recent_rxqsls(user: User, session: Session) -> Sequence[QSOReport]:
+def get_25_most_recent_rxqsls(
+    user: User, session: Session
+) -> Sequence[QSOReport]:
     stmt = (
         select(QSOReport)
         .join(User)
+        .where(User.id == user.id)
         .order_by(QSOReport.app_lotw_rxqsl.desc())
         .limit(25)
     )
