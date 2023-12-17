@@ -55,7 +55,7 @@ def qsls():
                 qsl,
                 qsl.seen,
                 is_unique_qso(user, qsl, session_),
-#                qsl.app_lotw_credit_granted,
+                # qsl.app_lotw_credit_granted,
             )
             for qsl in qsls
         ]
