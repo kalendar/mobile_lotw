@@ -50,7 +50,7 @@ def login():
         session.update({"logged_in": True, "op": op})
 
         response = redirect(
-            url_for(request.args.get("next_page") or "awards.dxcc")
+            url_for(request.args.get("next_page") or "awards.qsls")
         )
         # Set cookies for following requests
         response.set_cookie(
