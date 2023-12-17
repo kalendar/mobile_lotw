@@ -44,4 +44,4 @@ def qsodetail():
             )
         else:
             # No access
-            return redirect(url_for("qsls"))
+            return redirect(url_for("awards.qsls"))
