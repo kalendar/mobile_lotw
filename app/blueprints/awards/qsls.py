@@ -4,7 +4,11 @@ from flask import current_app, render_template, request, session, url_for
 from sqlalchemy.orm import Session
 
 from ...cache import is_expired
-from ...database.queries import get_most_recent_rxqsls, get_user, is_unique_qso
+from ...database.queries import (
+    get_25_most_recent_rxqsls,
+    get_user,
+    is_unique_qso,
+)
 from ...database.table_declarations import QSOReport
 from ...urls import QSLS_PAGE_URL
 from ..api.import_qsos_data import import_qsos_data
@@ -46,7 +50,7 @@ def qsls():
             current_app.logger.info(f"{user.op}'s QSOs are expired, importing.")
             import_qsos_data()
 
-        qsls: list[QSOReport] = get_most_recent_rxqsls(
+        qsls: list[QSOReport] = get_25_most_recent_rxqsls(
             user=user, session=session_
         )
 
