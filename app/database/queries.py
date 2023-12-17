@@ -122,7 +122,7 @@ def is_unique_qso(user: User, qso: QSOReport, session: Session) -> bool:
     CW = ["CW"]
     DIGITAL_TYPES = [
         "ATV", "FAX", "SSTV", "AMTOR", "ARDOP", "CHIP", "CLOVER",
-        "CONTESTI", "DOMINO", "FSK31", "FSK441", "FST4", "FT4",
+        "CONTESTI", "DATA", "DOMINO", "FESK", "FSK31", "FSK441", "FST4", "FT4",
         "FT8", "GTOR", "HELL", "HFSK", "ISCAT", "JT4", "JT65",
         "JT6M", "JT9", "MFSK16", "MFSK8", "MINIRTTY", "MSK144",
         "MT63", "OLIVIA", "OPERA", "PACKET", "PACTOR", "PAX", "PSK10",
