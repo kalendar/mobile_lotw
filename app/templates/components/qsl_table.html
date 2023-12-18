@@ -1,0 +1,44 @@
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Worked</th>
+      <th>Band</th>
+      <th>Mode</th>
+      <th class="for_big_screens">Date/Time</th>
+      {% if qsl_tuples %}
+        <th>DXCC</th>
+      {% endif %}
+      <th>QSL</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if qsl_tuples %}
+      {% for qsl, seen, unique in qsl_tuples %}
+        <tr class="{{ "new_contact" if not seen }}">
+          <td>{{ qsl.call }}</td>
+          <td>{{ qsl.band }}</td>
+          <td>{{ qsl.mode }}</td>
+          <td class="for_big_screens">{{ qsl.app_lotw_qso_timestamp }}</td>
+          <td>
+            {{ '<i style="color: #FFA000 !important;" class="fa-solid fa-star"></i>'|safe if unique }}
+          </td>
+          <td>
+            <a href="{{ url_for("awards.qsodetail", id=qsl.id) }}">Details</a>
+          </td>
+        </tr>
+      {% endfor %}
+    {% elif qsls %}
+      {% for qsl in qsls %}
+        <tr>
+          <td>{{ qsl.call }}</td>
+          <td>{{ qsl.band }}</td>
+          <td>{{ qsl.mode }}</td>
+          <td class="for_big_screens">{{ qsl.app_lotw_qso_timestamp }}</td>
+          <td>
+            <a href="{{ url_for("awards.qsodetail", id=qsl.id) }}">Details</a>
+          </td>
+        </tr>
+      {% endfor %}
+    {% endif %}
+  </tbody>
+</table>

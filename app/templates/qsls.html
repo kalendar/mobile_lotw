@@ -1,34 +1,7 @@
 {% extends "index.html" %}
 
 {% block content %}
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Worked</th>
-        <th>Band</th>
-        <th>Mode</th>
-        <th class="for_big_screens">Date/Time</th>
-        <th>DXCC</th>
-        <th>QSL</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for qsl, seen, unique in qsl_tuples %}
-        <tr class="{{ "new_contact" if not seen }}">
-          <td>{{ qsl.call }}</td>
-          <td>{{ qsl.band }}</td>
-          <td>{{ qsl.mode }}</td>
-          <td class="for_big_screens">{{ qsl.app_lotw_qso_timestamp }}</td>
-          <td>
-            {{ '<i style="color: #FFA000 !important;" class="fa-solid fa-star"></i>'|safe if unique }}
-          </td>
-          <td>
-            <a href="{{ url_for("awards.qsodetail", id=qsl.id) }}">Details</a>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% include "components/qsl_table.html" %}
 
   <p>
     <a href="{{ qsls_page_url }}" target="_new"

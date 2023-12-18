@@ -21,4 +21,4 @@ deploy.sh
 
 # Database related
 alembic/versions
-database
+/database
