@@ -5,7 +5,7 @@ from os import getenv
 import requests
 from flask import Flask, render_template
 
-from .blueprints import api, auth, awards, map
+from .blueprints import api, auth, awards, map, search
 from .database import get_sessionmaker
 from .regex_cache import REGEX_CACHE
 
@@ -67,11 +67,11 @@ def create_app() -> Flask:
     def delete_account():
         return render_template("delete_account.html")
 
-
     # Blueprints
     app.register_blueprint(awards.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(map.bp)
     app.register_blueprint(api.bp)
+    app.register_blueprint(search.bp)
 
     return app

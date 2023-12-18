@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+
+{% block content %}
+  <h1>Search for QSLs by {{ search_type }}</h1>
+
+  <form method="post" action="{{ url_for(endpoint) }}">
+    <p>
+      <label for="query">{{ search_type }}:</label>
+      <input type="text" id="query" name="query" value="{{query}}" required />
+    </p>
+    <p>
+      <input type="submit" value="Search" />
+    </p>
+  </form>
+
+  {% if qsls %}
+    {% include "components/qsl_table.html" %}
+  {% endif %}
+{% endblock %}
