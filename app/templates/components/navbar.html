@@ -4,6 +4,74 @@
       ><i class="fa-solid fa-mobile-screen-button" style="color: #ffffff"></i
       >&nbsp;&nbsp;Mobile LotW</a
     >
+
+    <button 
+    class="navbar-toggler" 
+    type="button" 
+    data-bs-toggle="collapse" 
+    data-bs-target="#navbarNavDropdown" 
+    aria-controls="navbarNavDropdown" 
+    aria-expanded="false" 
+    aria-label="Toggle navigation"
+    >
+    
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav ms-auto">
+        {% if session.logged_in %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('awards.qsls') }}"
+            >Recent QSLs</a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAwardsLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Awards
+            </a>
+            <ul class="dropdown-menu  bg-primary" aria-labelledby="navbarDropdownAwardsLink">
+              <li><a class="dropdown-item" href="{{ url_for('awards.dxcc') }}">DXCC</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('awards.was') }}">WAS</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('awards.vucc') }}">VUCC</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('awards.wpx') }}">WPX</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('awards.waz') }}">WAZ</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSearchLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Search
+            </a>      
+              <ul class="dropdown-menu navbar-dark bg-primary" aria-labelledby="navbarDropdownSearchLink">
+              <li><a class="dropdown-item" href="{{ url_for('awards.find') }}">Last Log Upload</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('search.callsign') }}">Call in Your Log</a></li>
+              </ul>
+          </li>
+
+          <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('map.view') }}"
+            >QSL Map <i class="fa-solid fa-location-dot"></i
+          ></a>
+        </li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">About Mobile LotW</a></li>
+        {% if not session.logged_in %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+        {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!--// 
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/"
+      ><i class="fa-solid fa-mobile-screen-button" style="color: #ffffff"></i
+      >&nbsp;&nbsp;Mobile LotW</a
+    >
     <button
       class="navbar-toggler"
       type="button"
@@ -41,3 +109,4 @@
     </div>
   </div>
 </nav>
+//-->
