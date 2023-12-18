@@ -138,6 +138,7 @@ class QSOReport(Base):
             "Band": self.band,
             "Frequency": self.freq,
             "QSL": self.app_lotw_rxqsl,
+            "Credits Awarded": self.app_lotw_credit_granted,
         }
 
         return user_details, other_details
