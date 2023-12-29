@@ -72,12 +72,32 @@ def is_unique_qso(user: User, qso: QSOReport, session: Session) -> bool:
 
 
 def qso_report_exists(
-    app_lotw_qso_timestamp: datetime, session: Session
-) -> bool:
-    return bool(
+    app_lotw_qso_timestamp: datetime, call: str, session: Session
+) -> QSOReport | None:
+    return session.scalar(
+        select(QSOReport).where(
+            and_(
+                QSOReport.app_lotw_qso_timestamp == app_lotw_qso_timestamp,
+                QSOReport.call == call,
+            )
+        )
+    )
+
+
+def qso_report_mutated(
+    app_lotw_rxqso: datetime,
+    app_lotw_rxqsl: datetime,
+    call: str,
+    session: Session,
+) -> QSOReport | None:
+    return not bool(
         session.scalar(
             select(QSOReport).where(
-                QSOReport.app_lotw_qso_timestamp == app_lotw_qso_timestamp
+                and_(
+                    QSOReport.app_lotw_rxqso == app_lotw_rxqso,
+                    QSOReport.app_lotw_rxqsl == app_lotw_rxqsl,
+                    QSOReport.call == call,
+                )
             )
         )
     )
