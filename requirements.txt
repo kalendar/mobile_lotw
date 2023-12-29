@@ -1,5 +1,5 @@
 adi-parser==0.1.1
-alembic==1.13.0
+alembic==1.13.1
 beautifulsoup4==4.12.2
 bs4==0.0.1
 Flask==3.0.0
