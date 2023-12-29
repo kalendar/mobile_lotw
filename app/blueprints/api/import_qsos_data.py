@@ -9,9 +9,8 @@ from sqlalchemy.orm import Session
 
 from ... import lotw
 from ...database.queries import (
+    get_qso_report_by_timestamp,
     get_user,
-    qso_report_exists,
-    qso_report_mutated,
 )
 from ...database.table_declarations import QSOReport
 from ...urls import QSOS_URL
@@ -79,7 +78,7 @@ def add_reports_to_db(
             report = None
 
             if has_imported:
-                report = qso_report_exists(
+                report = get_qso_report_by_timestamp(
                     app_lotw_qso_timestamp=qso_report.app_lotw_qso_timestamp,
                     call=qso_report.call,
                     session=session_,

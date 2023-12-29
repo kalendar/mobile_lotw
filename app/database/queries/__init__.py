@@ -1,10 +1,9 @@
 from .functional import (
     ensure_user,
     get_object,
+    get_qso_report_by_timestamp,
     get_user,
     is_unique_qso,
-    qso_report_exists,
-    qso_report_mutated,
 )
 from .map import (
     get_user_qsos_for_map_by_rxqso,
