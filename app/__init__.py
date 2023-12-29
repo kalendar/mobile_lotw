@@ -3,7 +3,7 @@ from logging import DEBUG, INFO, WARN
 from os import getenv
 
 import requests
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 
 from .blueprints import api, auth, awards, map, search
 from .database import get_sessionmaker
@@ -53,6 +53,8 @@ def create_app() -> Flask:
     # Primary routes
     @app.get("/")
     def home():
+        if session.get("logged_in"):
+            return redirect(url_for("awards.qsls"))
         return render_template("home.html")
 
     @app.get("/about")
