@@ -5,7 +5,7 @@ bs4==0.0.1
 Flask==3.0.0
 maidenhead==1.7.0
 requests==2.31.0 
-pycryptodome==3.19.0
+pycryptodome==3.19.1
 python-dotenv==1.0.0
-SQLAlchemy==2.0.23
+SQLAlchemy==2.0.24
 typing_extensions==4.9.0
