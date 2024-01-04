@@ -18,7 +18,7 @@ def get(url: str, op: str | None = None) -> RResponse | Response:
 
         response = r_get(url=url, cookies=user.lotw_cookies)
 
-        if not is_valid_response(response=response):
+        if not is_valid_response(response=response) or not response.status_code == 200:
             flash("LoTW Login has Expired! Please re-log.")
             return redirect(url_for("auth.login"))
 

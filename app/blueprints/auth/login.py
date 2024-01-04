@@ -19,7 +19,7 @@ from .base import bp
 
 
 @bp.route(
-    "/login/",
+    "/login",
     methods=["POST", "GET"],
 )
 def login():
