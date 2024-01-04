@@ -3,7 +3,7 @@ from logging import DEBUG, INFO, WARN
 from os import getenv
 
 import requests
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, session, url_for
 
 from .blueprints import api, auth, awards, map, search
 from .database import get_sessionmaker
@@ -24,10 +24,10 @@ def create_app() -> Flask:
         raise KeyError(common_message.format("MOBILE_LOTW_DB_KEY"))
     if len(getenv("MOBILE_LOTW_DB_KEY")) != 16:
         raise ValueError("MOBILE_LOTW_DB_KEY must be 16 characters!")
+    if not getenv("DB_URL"):
+        raise ValueError("No DB_URL found.")
 
     # Check for optional env vars
-    if not getenv("DB_NAME"):
-        app.logger.warn("No DB_NAME found. Defaulting to 'mobile_lotw.db'.")
     if not getenv("SESSION_CACHE_EXPIRATION"):
         app.logger.warn(
             "No SESSION_CACHE_EXPIRATION found. Defaulting to '30' minutes."
@@ -39,7 +39,7 @@ def create_app() -> Flask:
 
     app.config.from_mapping(
         MOBILE_LOTW_DB_KEY=getenv("MOBILE_LOTW_DB_KEY"),
-        SESSION_MAKER=get_sessionmaker(getenv("DB_NAME") or "mobile_lotw.db"),
+        SESSION_MAKER=get_sessionmaker(getenv("DB_URL")),
         REQUEST_SESSION=requests.Session(),
         SESSION_CACHE_EXPIRATION=int(getenv("SESSION_CACHE_EXPIRATION"))
         if getenv("SESSION_CACHE_EXPIRATION")
@@ -53,6 +53,9 @@ def create_app() -> Flask:
     # Primary routes
     @app.get("/")
     def home():
+        if session.get("logged_in"):
+            return redirect(url_for("awards.qsls"))
+
         return render_template("home.html")
 
     @app.get("/about")
