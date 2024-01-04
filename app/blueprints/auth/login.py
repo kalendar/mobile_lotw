@@ -27,7 +27,7 @@ def login():
     if request.method == "POST":
         # Create a payload for LOTW
         lotw_payload = {
-            "login": request.form.get("login").strip(),
+            "login": request.form.get("login").strip().lower(),
             "password": request.form.get("password").strip(),
             "acct_sel": "",
             "thisForm": "login",
@@ -44,7 +44,7 @@ def login():
             return redirect(url_for("auth.login", **request.args))
 
         # Login successful
-        op = request.form.get("login").lower()
+        op = request.form.get("login").strip().lower()
 
         # Mark session as logged_in
         session.update({"logged_in": True, "op": op})
