@@ -68,6 +68,7 @@ def login():
             session_.add(user)
 
             if not user.has_imported:
+                flash('Due to a recent server upgrade, QSOs need to be re-imported.')
                 return render_template("import_qsos_data.html")
 
         return response
