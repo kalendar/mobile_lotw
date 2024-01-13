@@ -123,11 +123,10 @@ os.environ['SESSION_CACHE_EXPIRATION'] = '30'
 os.environ['DB_URL'] = "postgresql+psycopg://david:himitsu1028@localhost:5432/mobile_lotw"
 
 # The API key for the deployment endpoint.
-os.environ['API_KEY'] = "REPLACE_ME"
+os.environ['API_KEY'] = "REPLACE_ME_NOW"
 
 # The path to your deployment script.
 os.environ['DEPLOY_SCRIPT_PATH'] = "/path/to/your/deploy/script"
-
 
 from mobile_lotw.app import create_app
 
