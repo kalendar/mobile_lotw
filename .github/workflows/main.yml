@@ -11,4 +11,4 @@ jobs:
     - name: Make API Request
       run: |
         # Use curl or other HTTP client to make the API request
-        curl -X GET https://mobilelotw.org/deploy?token=${{ secrets.API_KEY }}
+        curl -X GET https://mobilelotw.org/api?API_KEY=${{ secrets.API_KEY }}
