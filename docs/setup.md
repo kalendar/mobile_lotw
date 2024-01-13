@@ -62,6 +62,11 @@ Settings (JSON)". Then, paste the above JSON into the file.
 sudo chown -R www-data:www-data /var/www/mobile_lotw/mobile_lotw
 ```
 
+If you want to use the Github Actions-based depliy, you'll need to 
+add a line like the following to your sudoers file using visudo:
+
+```your_flask_user ALL=(ALL) NOPASSWD: /var/www/mobile_lotw/mobile_lotw/deploy.sh```
+
 ### Example Apache config file:
 
 ```xml
@@ -113,6 +118,15 @@ os.environ['DB_NAME'] = 'mobile_lotw.db'
 
 # Time in minutes before expiring cached information.
 os.environ['SESSION_CACHE_EXPIRATION'] = '30'
+
+# URL to the postgresql database
+os.environ['DB_URL'] = "postgresql+psycopg://david:himitsu1028@localhost:5432/mobile_lotw"
+
+# The API key for the deployment endpoint.
+os.environ['API_KEY'] = "REPLACE_ME"
+
+# The path to your deployment script.
+os.environ['DEPLOY_SCRIPT_PATH'] = "/path/to/your/deploy/script"
 
 
 from mobile_lotw.app import create_app

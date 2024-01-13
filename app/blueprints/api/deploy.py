@@ -12,7 +12,7 @@ def deploy():
     if api_key == getenv('API_KEY'):
         # Execute the shell script
         import subprocess
-        subprocess.run([getenv('DEPLOY_SCRIPT_PATH')], shell=True)
+        subprocess.run(['sudo', 'sh', getenv('DEPLOY_SCRIPT_PATH')], shell=True)
         return 'Deployed successfully.'
 
     # If the API_KEY is incorrect, return an error message
