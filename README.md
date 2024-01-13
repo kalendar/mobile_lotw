@@ -13,9 +13,8 @@ delightful LotW experience on your mobile device.
 
 ## Technical Requirements
 
-
 ❗❗ Python version >= 3.12
 
-Mobile LotW uses Apache, WSGI, and sqlite.
+Mobile LotW uses Python, Flask, Apache, WSGI, and Postgres.
 
 More details in [setup](/docs/setup.md).
