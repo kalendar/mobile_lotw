@@ -1,0 +1,14 @@
+name: API Deployment Endpoint
+
+on: [push]
+
+jobs:
+  api_request_job:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Make API Request
+      run: |
+        # Use curl or other HTTP client to make the API request
+        curl -X GET https://mobilelotw.org/deploy?token=${{ secrets.API_KEY }}
