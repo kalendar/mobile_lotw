@@ -15,5 +15,5 @@ def deploy():
         subprocess.run(['/usr/bin/sudo', getenv('DEPLOY_SCRIPT_PATH')], shell=False)
         return 'Deployed successfully.'
 
-    # If the API_KEY is incorrect, return an error message
+    # If the API_KEY is incorrect, return an error message.
     return 'Unauthorized.', 401
