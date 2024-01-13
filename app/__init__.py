@@ -26,6 +26,10 @@ def create_app() -> Flask:
         raise ValueError("MOBILE_LOTW_DB_KEY must be 16 characters!")
     if not getenv("DB_URL"):
         raise ValueError("No DB_URL found.")
+    if not getenv("API_KEY"):
+        raise KeyError(common_message.format("API_KEY not found"))
+    if not getenv("DEPLOY_SCRIPT_PATH"):
+        raise KeyError(common_message.format("DEPLOY_SCRIPT_PATH not found"))
 
     # Check for optional env vars
     if not getenv("SESSION_CACHE_EXPIRATION"):
