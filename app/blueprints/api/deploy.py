@@ -9,6 +9,7 @@ def deploy():
     api_key = request.args.get('API_KEY')
 
     # Check if the API_KEY is correct (replace 'your_secret_key' with your actual secret key)
+
     if api_key == getenv('API_KEY'):
         # Execute the shell script
         import subprocess
