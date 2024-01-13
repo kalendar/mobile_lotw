@@ -12,8 +12,8 @@ def deploy():
     if api_key == getenv('API_KEY'):
         # Execute the shell script
         import subprocess
-        subprocess.run(['sudo', 'sh', getenv('DEPLOY_SCRIPT_PATH')], shell=True)
+        subprocess.run(['/usr/bin/sudo', getenv('DEPLOY_SCRIPT_PATH')], shell=False)
         return 'Deployed successfully.'
 
-    # If the API_KEY is incorrect, return an error message
+    # If the API_KEY is incorrect, return an error message.
     return 'Unauthorized.', 401
