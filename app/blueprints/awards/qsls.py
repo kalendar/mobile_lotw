@@ -71,11 +71,14 @@ def qsls():
             "%d/%m/%Y, %H:%M:%S"
         )
 
+        progressier_block = '<script> window.addEventListener("load", function(){ progressier.add({ id: {{"' + user.op + '"}} }); }); </script>'
+
         return render_template(
             "qsls.html",
             qsl_tuples=qsl_tuples,
             qsls_page_url=QSLS_PAGE_URL,
             parsed_at=parsed_at,
+            progressier_block=progressier_block,
             force_reload=url_for("awards.qsls", force_reload=True),
             title="25 Most Recent QSLs",
         )
