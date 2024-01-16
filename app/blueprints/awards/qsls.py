@@ -71,7 +71,7 @@ def qsls():
             "%d/%m/%Y, %H:%M:%S"
         )
 
-        progressier_block = '<script> window.addEventListener("load", function(){ progressier.add({ id: {{"' + user.op + '"}} }); }); </script>'
+        progressier_block = '<script> window.addEventListener("load", function(){ progressier.add({ tags: "' + user.op + '" }); }); </script>'
 
         return render_template(
             "qsls.html",
