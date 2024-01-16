@@ -72,12 +72,14 @@ def qsls():
         )
 
 #         progressier_block = '<script> window.addEventListener("load", function(){ progressier.add({ tags: "' + user.op + '" }); }); </script>'
+        one_signal_block = '<script>const { setTags } = WTN.OneSignal; setTags({ tags:{ type:"' + user.op + '" } });</script>'
 
         return render_template(
             "qsls.html",
             qsl_tuples=qsl_tuples,
             qsls_page_url=QSLS_PAGE_URL,
             parsed_at=parsed_at,
+            one_signal_block=one_signal_block,
 #            progressier_block=progressier_block,
             force_reload=url_for("awards.qsls", force_reload=True),
             title="25 Most Recent QSLs",
