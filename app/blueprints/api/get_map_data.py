@@ -25,10 +25,14 @@ def get_map_data(as_json: bool = False):
 
         current_app.logger.info(f"Getting marker locations for {user.op}")
 
-        count = get_user_qsos_for_map_by_rxqso_count(user=user, session=session_)
+        count = get_user_qsos_for_map_by_rxqso_count(
+            user=user, session=session_
+        )
 
         if user.map_data_count == count and not force_reload:
-            current_app.logger.info(f"Decoding marker locations for {user.op} from DB cache")
+            current_app.logger.info(
+                f"Decoding marker locations for {user.op} from DB cache"
+            )
             marker_locations = user.map_data.decode("utf-8")
         else:
             user_qso_reports = get_user_qsos_for_map_by_rxqso(
@@ -50,7 +54,7 @@ def get_map_data(as_json: bool = False):
             ) in user_qso_reports:
                 existing = marker_locations.get(gridsquare)
 
-                report = f'<p>Worked: {call}</p><p>Band: {band}</p><p>Mode: {mode}</p><p>Date: {qso_timestamp}</p><a href="{url_for("awards.qsodetail", id=id)}">QSL Details</a>' # noqa
+                report = f'<p>Worked: {call}</p><p>Band: {band}</p><p>Mode: {mode}</p><p>Date: {qso_timestamp}</p><a href="{url_for("awards.qsodetail", id=id)}">QSL Details</a>'  # noqa
 
                 if existing:
                     report = existing.get("report") + "<hr>" + report
@@ -58,7 +62,8 @@ def get_map_data(as_json: bool = False):
                 formatted_gridsquare = gridsquare
                 if len(gridsquare) == 6:
                     formatted_gridsquare = (
-                        formatted_gridsquare[:4] + formatted_gridsquare[-2:].lower()
+                        formatted_gridsquare[:4]
+                        + formatted_gridsquare[-2:].lower()
                     )
 
                 marker_locations.update(
@@ -73,7 +78,9 @@ def get_map_data(as_json: bool = False):
                 )
             current_app.logger.info(f"Created marker locations for {user.op}")
 
-            user.map_data = bytes(json.dumps(marker_locations), encoding="utf-8")
+            user.map_data = bytes(
+                json.dumps(marker_locations), encoding="utf-8"
+            )
             user.map_data_count = len(user_qso_reports)
 
         current_app.logger.info(f"Done getting marker locations for {user.op}")

@@ -17,6 +17,15 @@
       gtag("config", "G-TEQF5W3DWJ");
     </script>
 
+    <script src="https://unpkg.com/webtonative@1.0.50/webtonative.min.js"></script>
+
+    {% if user_op %}
+      <script>
+        const { setExternalUserId } = WTN.OneSignal;
+        setExternalUserId("{{user_op}}");
+      </script>
+    {% endif %}
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
@@ -40,11 +49,6 @@
     <title>{{ title }}</title>
 
     <link rel="shortcut icon" href="/static/favicon.ico" />
-
-    <script src="https://unpkg.com/webtonative@1.0.50/webtonative.min.js"></script>
-
-    {{ one_signal_block | safe}}
-
   </head>
 
   <body>
