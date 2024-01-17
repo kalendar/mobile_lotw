@@ -73,10 +73,6 @@ def create_app() -> Flask:
     def delete_account():
         return render_template("delete_account.html")
 
-    @app.get('/progressier.js')
-    def serve_js():
-        return app.send_static_file('progressier.js')
-
     # Blueprints
     app.register_blueprint(awards.bp)
     app.register_blueprint(auth.bp)
