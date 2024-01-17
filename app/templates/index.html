@@ -37,18 +37,13 @@
 
     {% block header_links %}{% endblock %}
 
-    {{ one_signal_block | safe}}
-
     <title>{{ title }}</title>
 
     <link rel="shortcut icon" href="/static/favicon.ico" />
 
     <script src="https://unpkg.com/webtonative@1.0.50/webtonative.min.js"></script>
 
-    <!--//
-    <link rel="manifest" href="https://progressier.app/n0Vo34J7yHJFo9iCBF8H/progressier.json"/>
-    <script defer src="https://progressier.app/n0Vo34J7yHJFo9iCBF8H/script.js"></script>
-    //--> 
+    {{ one_signal_block | safe}}
 
   </head>
 
