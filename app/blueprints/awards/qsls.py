@@ -71,8 +71,8 @@ def qsls():
             "%d/%m/%Y, %H:%M:%S"
         )
 
-        # one_signal_block = '<script>const { setExternalUserId } = WTN.OneSignal; setExternalUserId("' + user.op + '");</script>\n'
-        one_signal_block = '<script>const { setTags } = WTN.OneSignal; setTags({ tags:{ type:"' + user.op + '" } });</script>'
+        one_signal_block = '<script>const { setExternalUserId } = WTN.OneSignal; setExternalUserId("' + user.op + '");</script>\n'
+        # one_signal_block = '<script>const { setTags } = WTN.OneSignal; setTags({ tags:{ type:"' + user.op + '" } });</script>'
 
         return render_template(
             "qsls.html",
