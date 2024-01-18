@@ -65,6 +65,29 @@ class User(Base):
             return dictionary
         return None
 
+    def outside_app_context_lotw_cookies(
+        self, db_key: str
+    ) -> dict[str, str] | None:
+        key = bytes(
+            db_key,
+            encoding="utf-8",
+        )
+
+        if self.lotw_cookies_b:
+            nonce, tag, ciphertext = (
+                self.lotw_cookies_b[:16],
+                self.lotw_cookies_b[16:32],
+                self.lotw_cookies_b[32:],
+            )
+
+            cipher = AES.new(key, AES.MODE_EAX, nonce)
+            data = cipher.decrypt_and_verify(ciphertext, tag)
+
+            dictionary = loads(data.decode(encoding="utf-8"))
+
+            return dictionary
+        return None
+
     @lotw_cookies.setter
     def lotw_cookies(self, dictionary: dict[str, str]) -> None:
         from flask import current_app
