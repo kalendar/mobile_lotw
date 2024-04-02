@@ -40,9 +40,7 @@ def get_award_details(
     )
     award_parsed_at: datetime = session.get(f"{award}_parsed_at", default=None)
 
-    force_reload: bool = request.args.get(
-        "force_reload", type=bool, default=False
-    )
+    force_reload: bool = request.args.get("force_reload", type=bool, default=False)
 
     # If a reload is requested, or data expired/missing
     if (

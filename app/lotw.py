@@ -8,34 +8,31 @@ from .database.queries import get_user
 
 def get(url: str, op: str | None = None) -> RResponse | Response:
     if not op:
-        op: str = session.get("op")
+        op: str | None = session.get("op")
 
-    if not op:
-        raise AttributeError("No flask.session object 'op' found.")
+    if op is None:
+        flash("LoTW Login has Expired! Please re-log.")
+        return redirect(url_for("auth.login"))
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         user = get_user(op=op, session=session_)
 
         response = r_get(url=url, cookies=user.lotw_cookies)
 
-        if (
-            not is_valid_response(response=response)
-            or not response.status_code == 200
-        ):
+        if not is_valid_response(response=response) or not response.status_code == 200:
             flash("LoTW Login has Expired! Please re-log.")
             return redirect(url_for("auth.login"))
 
         return response
 
 
-def post(
-    url: str, data: dict, op: str | None = None
-) -> RResponse | Response | None:
+def post(url: str, data: dict, op: str | None = None) -> RResponse | Response | None:
     if not op:
         op: str = session.get("op")
 
     if not op:
-        raise AttributeError("No flask.session object 'op' found.")
+        flash("LoTW Login has Expired! Please re-log.")
+        return redirect(url_for("auth.login"))
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         user = get_user(op=op, session=session_)
