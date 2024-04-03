@@ -73,6 +73,10 @@ def create_app() -> Flask:
     def delete_account():
         return render_template("delete_account.html")
 
+    @app.get("/.well-known/assetlinks.json")
+    def google_link():
+        return redirect(url_for("static", filename="assetlinks.json"))
+
     # Blueprints
     app.register_blueprint(awards.bp)
     app.register_blueprint(auth.bp)
