@@ -4,7 +4,7 @@ from itertools import batched
 
 from adi_parser import parse_adi
 from adi_parser.dataclasses import QSOReport as DCQSOReport
-from flask import current_app, redirect, session, url_for
+from flask import Response, current_app, redirect, session, url_for
 from sqlalchemy.orm import Session
 
 from ... import lotw
@@ -38,6 +38,9 @@ def import_qsos_data():
     current_app.logger.info(f"Getting {user_op}'s QSOs from LoTW")
     response = lotw.get(url=url)
 
+    if isinstance(response, Response):
+        return response
+
     if "Page Request Limit!" in response.text:
         current_app.logger.warn(f"Page Request Limit for {user.op}!")
         return "LoTW page limit request hit.", 502
@@ -51,9 +54,7 @@ def import_qsos_data():
 
     current_app.logger.info(f"Adding QSOs for {user_op} to DB")
     for qso_reports_subset in batched(qso_reports, 100):
-        add_reports_to_db(
-            qso_reports=qso_reports_subset, has_imported=has_imported
-        )
+        add_reports_to_db(qso_reports=qso_reports_subset, has_imported=has_imported)
     current_app.logger.info(f"Done Adding QSOs for {user_op} to DB")
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
@@ -67,9 +68,7 @@ def import_qsos_data():
     return redirect(url_for("awards.qsls"))
 
 
-def add_reports_to_db(
-    qso_reports: list[DCQSOReport], has_imported: bool
-) -> None:
+def add_reports_to_db(qso_reports: list[DCQSOReport], has_imported: bool) -> None:
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         session_: Session
 
