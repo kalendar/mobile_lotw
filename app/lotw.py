@@ -12,7 +12,7 @@ def get(url: str, op: str | None = None) -> RResponse | Response:
 
     if op is None:
         flash("LoTW Login has Expired! Please re-log.")
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("auth.logout"))
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         user = get_user(op=op, session=session_)
@@ -21,7 +21,7 @@ def get(url: str, op: str | None = None) -> RResponse | Response:
 
         if not is_valid_response(response=response) or not response.status_code == 200:
             flash("LoTW Login has Expired! Please re-log.")
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("auth.logout"))
 
         return response
 
@@ -32,7 +32,7 @@ def post(url: str, data: dict, op: str | None = None) -> RResponse | Response | 
 
     if not op:
         flash("LoTW Login has Expired! Please re-log.")
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("auth.logout"))
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         user = get_user(op=op, session=session_)
@@ -41,7 +41,7 @@ def post(url: str, data: dict, op: str | None = None) -> RResponse | Response | 
 
         if not is_valid_response(response=response):
             flash("LoTW Login has Expired! Please re-log.")
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("auth.logout"))
 
         return response
 
