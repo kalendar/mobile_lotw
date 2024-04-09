@@ -14,7 +14,7 @@ def logout():
     session.clear()
 
     # Remove op cookie and redirect home
-    response = make_response(redirect(url_for("home")))
+    response = make_response(redirect(url_for("auth.login")))
     response.delete_cookie("op")
 
     return response
