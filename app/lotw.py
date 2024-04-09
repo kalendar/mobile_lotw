@@ -46,5 +46,12 @@ def post(url: str, data: dict, op: str | None = None) -> RResponse | Response | 
         return response
 
 
-def is_valid_response(response: Response) -> bool:
-    return response and "postcard" not in response.text
+def is_valid_response(response: RResponse) -> bool:
+    if not response:
+        return False
+
+    text_response = (
+        response.text if response.text else str(response.content, encoding="utf8")
+    )
+
+    return "postcard" not in text_response
