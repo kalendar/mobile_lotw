@@ -87,6 +87,16 @@ def account_credits() -> tuple[str, list[Row], str, str]:
                 else columns[1].text,
             )
 
+        elif request.args.get("awg_id") == "VUCC":
+            award_detail = Row(
+                label=columns[0].text,
+                value=str(columns[1].find("a"))
+                .replace(' target="_new"', "")
+                .replace(' target="+new"', "")
+                if columns[1].find("a")
+                else columns[1].text,
+            )
+
         award_details.append(award_detail)
 
     award: str = request.args.get("awg_id")
