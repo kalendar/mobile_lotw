@@ -3,11 +3,11 @@ from flask import request
 
 from .. import lotw
 from ..dataclasses import AwardsDetail
-from ..urls import DXCC_PAGE_URL
+from ..urls import VUCC_PAGE_URL
 
 
 def vucc() -> list[AwardsDetail]:
-    response = lotw.get(DXCC_PAGE_URL)
+    response = lotw.get(VUCC_PAGE_URL)
 
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")
