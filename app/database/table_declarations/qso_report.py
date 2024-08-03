@@ -133,6 +133,7 @@ class QSOReport(Base):
             "CQ Zone": self.cqz,
             "ITU Zone": self.ituz,
             "Grid": self.gridsquare,
+            "County": self.cnty_human,
             "Date/Time": self.app_lotw_qso_timestamp,
             "Mode": self.mode,
             "Band": self.band,
