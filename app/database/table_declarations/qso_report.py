@@ -135,13 +135,17 @@ class QSOReport(Base):
             "Grid": self.gridsquare,
         }
         if self.dxcc == 291:
+            user_details.update(
+                {"State": f"{self.state_human} ({self.state})"}
+            )
+
+        if self.dxcc == 291:
             other_details.update(
                 {"County": f"{self.cnty_human} ({self.cnty})"}
             )
 
         other_details.update(
             {
-            "County": self.cnty_human,
             "Date/Time": self.app_lotw_qso_timestamp,
             "Mode": self.mode,
             "Band": self.band,
