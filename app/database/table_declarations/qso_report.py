@@ -134,7 +134,7 @@ class QSOReport(Base):
             "ITU Zone": self.ituz,
             "Grid": self.gridsquare,
         }
-        if self.cnty:
+        if self.dxcc == 291:
             other_details.update(
                 {"County": f"{self.cnty_human} ({self.cnty})"}
             )
