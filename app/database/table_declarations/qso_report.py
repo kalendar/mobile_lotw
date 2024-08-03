@@ -135,7 +135,7 @@ class QSOReport(Base):
             "Grid": self.gridsquare,
         }
         if self.dxcc == 291:
-            user_details.update(
+            other_details.update(
                 {"State": f"{self.state_human} ({self.state})"}
             )
 
