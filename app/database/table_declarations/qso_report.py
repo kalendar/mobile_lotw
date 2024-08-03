@@ -133,6 +133,14 @@ class QSOReport(Base):
             "CQ Zone": self.cqz,
             "ITU Zone": self.ituz,
             "Grid": self.gridsquare,
+        }
+        if self.cnty:
+            other_details.update(
+                {"County": f"{self.cnty_human} ({self.cnty})"}
+            )
+
+        other_details.update(
+            {
             "County": self.cnty_human,
             "Date/Time": self.app_lotw_qso_timestamp,
             "Mode": self.mode,
@@ -140,6 +148,9 @@ class QSOReport(Base):
             "Frequency": self.freq,
             "QSL": self.app_lotw_rxqsl,
             "Credits Awarded": self.app_lotw_credit_granted,
-        }
+            }
+        )
+
+
 
         return user_details, other_details
