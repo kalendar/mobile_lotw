@@ -124,7 +124,7 @@ class QSOReport(Base):
             )
         if self.my_cnty:
             user_details.update(
-                "County": self.my_cnty_human
+                {"County": f"{self.my_cnty_human}"}
             )
 
         other_details: dict[str, str] = {
@@ -141,7 +141,7 @@ class QSOReport(Base):
 
         if self.dxcc == 291:
             other_details.update(
-                "County": self.cnty_human
+                {"County": f"{self.cnty_human}"}
             )
 
         other_details.update(
