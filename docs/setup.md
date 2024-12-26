@@ -67,6 +67,11 @@ add a line like the following to your sudoers file using visudo:
 
 ```your_flask_user ALL=(ALL) NOPASSWD: /var/www/mobile_lotw/mobile_lotw/deploy.sh```
 
+Creating an index on the database will greatly speed up performance 
+once you have some data in there:
+
+```CREATE INDEX idx_qso_user_id_rxqsl ON qso_reports(user_id, app_lotw_rxqsl DESC);```
+
 ### Example Apache config file:
 
 ```xml
@@ -120,7 +125,7 @@ os.environ['DB_NAME'] = 'mobile_lotw.db'
 os.environ['SESSION_CACHE_EXPIRATION'] = '30'
 
 # URL to the postgresql database
-os.environ['DB_URL'] = "postgresql+psycopg://david:himitsu1028@localhost:5432/mobile_lotw"
+os.environ['DB_URL'] = "postgresql+psycopg://david:password@localhost:5432/mobile_lotw"
 
 # The API key for the deployment endpoint.
 os.environ['API_KEY'] = "REPLACE_ME_NOW"
