@@ -1,0 +1,23 @@
+{% extends "index.html" %}
+{% block content %}
+  <form action="#" method="post" class="flex flex-col w-60 m-auto gap-y-3">
+    <input
+      type="text"
+      name="mobile_lotw_username"
+      placeholder="Your Mobile LotW username"
+      class="border-gray-200 border-2 p-2 rounded-md"
+    />
+    <input
+      type="password"
+      name="password"
+      placeholder="Your LotW password"
+      class="border-gray-200 border-2 p-2 rounded-md"
+    />
+    <button
+      class="bg-blue-500 p-2 rounded-md text-white hover:bg-blue-600"
+      type="submit"
+    >
+      Submit
+    </button>
+  </form>
+{% endblock %}

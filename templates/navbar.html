@@ -1,0 +1,25 @@
+<nav class="bg-blue-600 flex justify-start p-5 gap-5 items-center">
+  <a class="text-white" href="/"
+    ><i
+      class="fa-solid fa-mobile-screen-button text-white"
+      aria-hidden="true"
+    ></i
+    >&nbsp;&nbsp;Mobile LotW</a
+  >
+  <div class="flex-grow"></div>
+  {% if request.session["logged_in"] %}
+    <a href="/qsos" class="text-blue-200 hover:text-white transition-colors"
+      >QSLs</a
+    >
+    <a href="/logout" class="text-blue-200 hover:text-white transition-colors"
+      >Logout</a
+    >
+  {% else %}
+    <a href="/register" class="text-blue-200 hover:text-white transition-colors"
+      >Register</a
+    >
+    <a href="/login" class="text-blue-200 hover:text-white transition-colors"
+      >Login</a
+    >
+  {% endif %}
+</nav>

@@ -1,0 +1,19 @@
+[project]
+name = "mobile-lotw"
+version = "2.0.0"
+description = "A mobile first view of LotW, plus notifications."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "sqlalchemy",
+    "fastapi[standard]",
+    "argon2-cffi",
+    "itsdangerous",
+    "pydantic_settings",
+    "pycryptodome",
+    "bs4",
+    "requests",
+]
+
+[dependency-groups]
+dev = ["ipython"]

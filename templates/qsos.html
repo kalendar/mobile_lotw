@@ -1,0 +1,37 @@
+{% extends "index.html" %}
+{% block content %}
+  <div class="w-3/4 overflow-hidden">
+    <table class="w-full overflow-x-scroll">
+      <thead>
+        <tr>
+          <th>Worked</th>
+          <th>Band</th>
+          <th>Mode</th>
+          <th class="for_big_screens">Date/Time</th>
+          <th>DXCC</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for qso in qsos %}
+          <tr class="{{ loop.cycle('bg-blue-200', '') }}">
+            <td class="p-2">{{ qso.worked }}</td>
+            <td class="p-2">{{ qso.band }}</td>
+            <td class="p-2">{{ qso.mode }}</td>
+            <td class="p-2">{{ qso.datetime }}</td>
+            {% if qso.challenge %}
+              <td class="p2">
+                <i
+                  class="fa-solid fa-star text-yellow-400"
+                  aria-hidden="true"
+                ></i>
+              </td>
+            {% else %}
+              <td class="p2"></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p>Updated at {{ datetime }}</p>
+{% endblock %}

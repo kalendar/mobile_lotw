@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-TEQF5W3DWJ"
+    ></script>
+
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-TEQF5W3DWJ");
+    </script>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/static/output.css" />
+    <script
+      src="https://kit.fontawesome.com/8c5441708a.js"
+      crossorigin="anonymous"
+    ></script>
+
+    {% block header_links %}{% endblock %}
+
+    <title>{{ title }}</title>
+
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+  </head>
+
+  <body class="min-h-screen no-scrollbar">
+    <div class="min-h-screen">
+      {% include "navbar.html" %}
+      <main
+        role="main"
+        class="w-full text-center py-5 flex flex-col gap-5 items-center"
+      >
+        {% if title %}
+          <h2>{{ title }}</h2>
+        {% endif %}
+        {% block content %}The index page.{% endblock %}
+      </main>
+    </div>
+    {% include "footer.html" %}
+    {% block scripts %}
+    {% endblock %}
+  </body>
+</html>
