@@ -1,5 +1,11 @@
-from pydantic import Field
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
+
+
+class EmailSettings(BaseModel):
+    sender_address: str
+    SMTP_address: str
+    SMTP_port: int
 
 
 class Settings(BaseSettings):
@@ -8,3 +14,5 @@ class Settings(BaseSettings):
     QSO_url: str
     database_key: str = Field(min_length=16, max_length=16)
     session_key: str
+
+    email_settings: EmailSettings

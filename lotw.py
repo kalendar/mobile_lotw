@@ -53,7 +53,7 @@ def retrieve_qsos(user: User) -> list[QSOReport]:
                     band=tds[4].text,
                     mode=tds[5].text,
                     frequency=tds[6].text,
-                    qsl=tds[7].text,
+                    qsl=tds[7].text.strip(),
                     challenge=bool(tds[-1].text.strip()),
                 )
             )
