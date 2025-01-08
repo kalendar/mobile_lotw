@@ -737,6 +737,12 @@ video {
   /* Firefox */
 }
 
+@font-face {
+  font-family: 'password';
+
+  src: url(/static/text-security-disc.ttf);
+}
+
 h1 {
   font-size: x-large;
   font-weight: bold;

@@ -15,7 +15,9 @@ def notify_user(user: User):
 
     for qso in user.qso_reports:
         if not qso.notified:
-            body += f"You worked {qso.worked} on {qso.datetime}.\n"
+            body += (
+                f"You worked {qso.worked} on {qso.band} {qso.mode} on {qso.datetime}.\n"
+            )
             print(f"Notified for: {qso.user.id}, {qso.datetime}, {qso.worked}")
             qso.notified = True
 

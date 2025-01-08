@@ -6,24 +6,36 @@
       name="email"
       placeholder="Your email"
       class="border-gray-200 border-2 p-2 rounded-md"
+      required
     />
     <input
       type="text"
       name="mobile_lotw_username"
       placeholder="Mobile LotW username"
       class="border-gray-200 border-2 p-2 rounded-md"
+      required
+    />
+    <input
+      type="password"
+      name="mobile_lotw_password"
+      placeholder="Mobile LotW password"
+      class="border-gray-200 border-2 p-2 rounded-md"
+      required
     />
     <input
       type="text"
       name="lotw_username"
       placeholder="Your LotW callsign"
       class="border-gray-200 border-2 p-2 rounded-md"
+      required
     />
     <input
-      type="password"
+      type="text"
       name="password"
+      id="lotw-password"
       placeholder="Your LotW password"
       class="border-gray-200 border-2 p-2 rounded-md"
+      required
     />
     <button
       class="bg-blue-500 p-2 rounded-md text-white hover:bg-blue-600"
@@ -32,4 +44,22 @@
       Submit
     </button>
   </form>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    let lotwPasswordField = document.querySelector("#lotw-password");
+
+    lotwPasswordField.addEventListener("input", setFieldFont);
+
+    function setFieldFont() {
+      if (lotwPasswordField.value.length > 0) {
+        lotwPasswordField.style.fontFamily = "password";
+      } else {
+        lotwPasswordField.style.fontFamily = "";
+      }
+    }
+
+    setFieldFont();
+  </script>
 {% endblock %}

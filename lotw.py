@@ -69,7 +69,7 @@ def update_user(user: User) -> None:
     """
     cookies = login(
         username=user.lotw_username,
-        password=user.get_password(database_key=SETTINGS.database_key),
+        password=user.get_lotw_password(database_key=SETTINGS.database_key),
     )
 
     user.set_lotw_cookies(cookies=cookies, database_key=SETTINGS.database_key)

@@ -36,7 +36,7 @@ async def login_post(
         select(User).where(User.mobile_lotw_username == mobile_lotw_username)
     )
 
-    if user and ph.verify(user.password_h, password):
+    if user and ph.verify(user.password_hash, password):
         request.session["logged_in"] = True
         request.session["username"] = mobile_lotw_username
 
@@ -71,6 +71,7 @@ async def register_post(
     request: Request,
     email: Annotated[str, Form()],
     mobile_lotw_username: Annotated[str, Form()],
+    mobile_lotw_password: Annotated[str, Form()],
     lotw_username: Annotated[str, Form()],
     password: Annotated[str, Form()],
     session: SessionBeginDep,
@@ -83,11 +84,12 @@ async def register_post(
     else:
         new_user = User(
             mobile_lotw_username=mobile_lotw_username,
+            mobile_lotw_password=mobile_lotw_password,
             lotw_username=lotw_username,
             email=email,
         )
 
-        new_user.set_password(password, SETTINGS.database_key)
+        new_user.set_lotw_password(password, SETTINGS.database_key)
 
         session.add(new_user)
 
