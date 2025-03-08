@@ -12,13 +12,13 @@
         </tr>
       </thead>
       <tbody>
-        {% for qso in qsos %}
+        {% for qsl in qsls %}
           <tr class="{{ loop.cycle('bg-blue-200', '') }}">
-            <td class="p-2">{{ qso.worked }}</td>
-            <td class="p-2">{{ qso.band }}</td>
-            <td class="p-2">{{ qso.mode }}</td>
-            <td class="p-2">{{ qso.datetime }}</td>
-            {% if qso.challenge %}
+            <td class="p-2">{{ qsl.worked }}</td>
+            <td class="p-2">{{ qsl.band }}</td>
+            <td class="p-2">{{ qsl.mode }}</td>
+            <td class="p-2">{{ qsl.datetime }}</td>
+            {% if qsl.challenge %}
               <td class="p2">
                 <i
                   class="fa-solid fa-star text-yellow-400"

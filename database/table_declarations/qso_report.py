@@ -11,13 +11,13 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class QSOReport(Base):
-    __tablename__ = "qso_reports"
+class QSLReport(Base):
+    __tablename__ = "qsl_reports"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped[User] = relationship(back_populates="qso_reports")
+    user: Mapped[User] = relationship(back_populates="qsl_reports")
 
     call_sign: Mapped[str]
     worked: Mapped[str]
@@ -56,7 +56,7 @@ class QSOReport(Base):
         return f"{self.user_id}{self.datetime}{self.worked}{self.notified}"
 
     def __eq__(self, value: Any):
-        if isinstance(value, QSOReport):
+        if isinstance(value, QSLReport):
             return hash(f"{self.user_id}{self.datetime}{self.worked}") == hash(
                 f"{value.user_id}{value.datetime}{value.worked}"
             )

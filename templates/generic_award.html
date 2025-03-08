@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+{% block content %}
+  <div class="w-3/4 overflow-hidden">
+    <table class="w-full overflow-x-scroll">
+      <thead>
+        <tr>
+          <th>{{ award_name }} Award</th>
+          <th>New LoTW QSLs</th>
+          <th>LoTW QSLs in Process</th>
+          <th>{{ award_name }} Credits Awarded</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for award in awards %}
+          <tr class="{{ loop.cycle('bg-blue-200', '') }}">
+            {% for value in award.values() %}
+              {% if loop.first %}
+                <td class="p-2 text-left">{{ value }}</td>
+              {% else %}
+                <td class="p-2">{{ value }}</td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p>Updated at {{ datetime }}</p>
+{% endblock %}

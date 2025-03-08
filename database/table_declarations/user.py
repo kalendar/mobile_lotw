@@ -7,7 +7,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .qso_report import QSOReport
+from .qso_report import QSLReport
 
 
 class User(Base):
@@ -25,7 +25,7 @@ class User(Base):
     lotw_password_b: Mapped[bytes]
     lotw_cookies_b: Mapped[bytes | None]
 
-    qso_reports: Mapped[list[QSOReport]] = relationship(
+    qsl_reports: Mapped[list[QSLReport]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 
@@ -39,16 +39,16 @@ class User(Base):
         mobile_lotw_password: str,
         lotw_username: str,
         email: str,
-        qso_reports_last_update: date = date(year=1970, month=1, day=1),
-        qso_reports: list[QSOReport] = [],
+        qsl_reports_last_update: date = date(year=1970, month=1, day=1),
+        qsl_reports: list[QSLReport] = [],
     ):
         ph = PasswordHasher()
         self.password_hash = ph.hash(mobile_lotw_password)
 
         self.mobile_lotw_username = mobile_lotw_username
         self.lotw_username = lotw_username
-        self.qso_reports.extend(qso_reports)
-        self.qso_reports_last_update = qso_reports_last_update
+        self.qsl_reports.extend(qsl_reports)
+        self.qso_reports_last_update = qsl_reports_last_update
         self.email = email
 
     def get_lotw_password(self, database_key: str) -> str:

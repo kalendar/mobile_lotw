@@ -13,13 +13,13 @@ def notify_user(user: User):
 
     body = ""
 
-    for qso in user.qso_reports:
-        if not qso.notified:
+    for qsl in user.qsl_reports:
+        if not qsl.notified:
             body += (
-                f"You worked {qso.worked} on {qso.band} {qso.mode} on {qso.datetime}.\n"
+                f"You worked {qsl.worked} on {qsl.band} {qsl.mode} on {qsl.datetime}.\n"
             )
-            print(f"Notified for: {qso.user.id}, {qso.datetime}, {qso.worked}")
-            qso.notified = True
+            print(f"Notified for: {qsl.user.id}, {qsl.datetime}, {qsl.worked}")
+            qsl.notified = True
 
     if body != "":
         sender = SETTINGS.email_settings.sender_address

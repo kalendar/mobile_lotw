@@ -41,7 +41,7 @@ async def login_post(
         request.session["username"] = mobile_lotw_username
 
         return RedirectResponse(
-            request.url_for("qsos"),
+            request.url_for("qsls"),
             status_code=status.HTTP_302_FOUND,
         )
     else:

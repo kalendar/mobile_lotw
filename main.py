@@ -6,10 +6,12 @@ from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from env import SETTINGS
-from routers import auth, qsos
+from middleware import AuthenticatedRoutes
+from routers import auth, awards
 
 middleware = [
-    Middleware(SessionMiddleware, secret_key=SETTINGS.session_key, https_only=False)
+    Middleware(SessionMiddleware, secret_key=SETTINGS.session_key, https_only=False),
+    Middleware(AuthenticatedRoutes),
 ]
 
 app = FastAPI(middleware=middleware)
@@ -34,8 +36,7 @@ async def privacy(request: Request):
 
 
 app.include_router(auth.router)
-app.include_router(qsos.router)
-
+app.include_router(awards.router)
 
 if __name__ == "__main__":
     import uvicorn

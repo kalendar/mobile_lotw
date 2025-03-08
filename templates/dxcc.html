@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+{% block content %}
+  <div class="w-3/4 overflow-hidden">
+    <table class="w-full overflow-x-scroll">
+      <thead>
+        <tr>
+          <th>DXCC Award</th>
+          <th>New LoTW QSLs</th>
+          <th>LoTW QSLs in Process</th>
+          <th>DXCC Credits Awarded</th>
+          <th>Total (All)</th>
+          <th>Total (Current)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dxcc in dxccs %}
+          <tr class="{{ loop.cycle('bg-blue-200', '') }}">
+            <td class="p-2 text-left">{{ dxcc.name }}</td>
+            <td class="p-2">{{ dxcc.new_qsls }}</td>
+            <td class="p-2">{{ dxcc.in_process_qsls }}</td>
+            <td class="p-2">{{ dxcc.credits_awarded }}</td>
+            <td class="p-2">{{ dxcc.total_all }}</td>
+            <td class="p-2">{{ dxcc.total_current }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p>Updated at {{ datetime }}</p>
+{% endblock %}
