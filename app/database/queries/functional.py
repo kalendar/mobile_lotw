@@ -29,46 +29,56 @@ def get_user(op: str, session: Session) -> User:
 
 
 def is_unique_qso(user: User, qso: QSOReport, session: Session) -> bool:
-    # fmt: off
-    CW = ["CW"]
-    DIGITAL_TYPES = [
-        "ATV", "FAX", "SSTV", "AMTOR", "ARDOP", "CHIP", "CLOVER",
-        "CONTESTI", "DATA", "DOMINO", "FESK", "FSK31", "FSK441", "FST4", "FT4",
-        "FT8", "GTOR", "HELL", "HFSK", "ISCAT", "JT4", "JT65",
-        "JT6M", "JT9", "MFSK16", "MFSK8", "MINIRTTY", "MSK144",
-        "MT63", "OLIVIA", "OPERA", "PACKET", "PACTOR", "PAX", "PSK10",
-        "PSK125", "PSK2K", "PSK31", "PSK63", "PSK63F", "PSKAM", "PSKFEC31",
-        "Q15", "Q65", "QRA64", "ROS", "RTTY", "RTTYM", "T10", "THOR", "THROB",
-        "VOI", "WINMOR", "WSPR", "IMAGE", "DATA"
-    ]
-    PHONE_TYPES = ["PHONE", "AM", "C4FM", "DIGITALVOICE", "DSTAR", "FM", "SSB"]
-    # fmt: on
+    """Check if a QSO would earn DXCC credit by filling an unfilled slot.
 
-    if qso.mode in CW:
-        general_type = CW
-    elif qso.mode in DIGITAL_TYPES:
-        general_type = DIGITAL_TYPES
-    elif qso.mode in PHONE_TYPES:
-        general_type = PHONE_TYPES
-    else:
-        general_type = DIGITAL_TYPES
+    DXCC has two independent slot types:
+    1. Band slots: (dxcc, band) - e.g., "10M + Bonaire"
+    2. Mode slots: (dxcc, mode_group) - e.g., "Phone + Bonaire"
 
-    stmt = (
+    A QSO is "unique" if it fills at least one unfilled slot.
+    Only QSOs with app_lotw_credit_granted set count as filling slots.
+    """
+    mode_group = _get_mode_group(qso.mode)
+
+    # Check if band slot (dxcc, band) is already filled by a credited QSO
+    band_slot_filled = session.scalar(
         select(func.count())
         .select_from(QSOReport)
         .join(User)
         .where(
             and_(
                 User.id == user.id,
-                QSOReport.mode.in_(general_type),
                 QSOReport.dxcc == qso.dxcc,
                 QSOReport.band == qso.band,
+                QSOReport.app_lotw_credit_granted.isnot(None),
                 QSOReport.id != qso.id,
             )
         )
     )
 
-    return not session.scalar(statement=stmt)
+    # Check if mode slot (dxcc, mode_group) is already filled by a credited QSO
+    mode_slot_filled = session.scalar(
+        select(func.count())
+        .select_from(QSOReport)
+        .join(User)
+        .where(
+            and_(
+                User.id == user.id,
+                QSOReport.dxcc == qso.dxcc,
+                QSOReport.mode.in_(_CW if mode_group == "CW" else
+                                   _PHONE_TYPES if mode_group == "PHONE" else
+                                   _DIGITAL_TYPES),
+                QSOReport.app_lotw_credit_granted.isnot(None),
+                QSOReport.id != qso.id,
+            )
+        )
+    )
+
+    # Unique if EITHER slot is unfilled
+    is_new_band_slot = band_slot_filled == 0
+    is_new_mode_slot = mode_slot_filled == 0
+
+    return is_new_band_slot or is_new_mode_slot
 
 
 # Mode type constants for uniqueness checks
@@ -99,51 +109,59 @@ def _get_mode_group(mode: str) -> str:
 def check_unique_qsos_bulk(
     user: User, qsos: list[QSOReport], session: Session
 ) -> dict[int, bool]:
-    """Check uniqueness for multiple QSOs in fewer queries.
+    """Check if QSOs would earn DXCC credit by filling unfilled slots.
 
-    Returns dict mapping QSO id -> is_unique (True if first QSO for that
-    mode_group/dxcc/band combination).
+    DXCC has two independent slot types:
+    1. Band slots: (dxcc, band) - e.g., "10M + Bonaire"
+    2. Mode slots: (dxcc, mode_group) - e.g., "Phone + Bonaire"
+
+    A QSO is "unique" (earns credit) if it fills at least one unfilled slot.
+    Only QSOs with app_lotw_credit_granted set count as filling slots.
+
+    Returns dict mapping QSO id -> is_unique (True if fills any new slot).
     """
     if not qsos:
         return {}
 
-    # Get unique (dxcc, band) pairs to query
-    dxcc_band_pairs = {(qso.dxcc, qso.band) for qso in qsos}
+    # Get all DXCC entities we need to check
+    dxcc_values = {qso.dxcc for qso in qsos}
 
-    # Single query to get all user's QSOs matching these (dxcc, band) pairs
-    conditions = [
-        and_(QSOReport.dxcc == dxcc, QSOReport.band == band)
-        for dxcc, band in dxcc_band_pairs
-    ]
-
+    # Query all user's CREDITED QSOs for these entities
+    # Only credited QSOs count as filling slots
     stmt = (
         select(QSOReport.id, QSOReport.mode, QSOReport.dxcc, QSOReport.band)
         .join(User)
-        .where(and_(User.id == user.id, or_(*conditions)))
+        .where(
+            and_(
+                User.id == user.id,
+                QSOReport.dxcc.in_(dxcc_values),
+                QSOReport.app_lotw_credit_granted.isnot(None),
+            )
+        )
     )
 
-    all_matching = session.execute(stmt).fetchall()
+    credited_qsos = session.execute(stmt).fetchall()
 
-    # Build lookup: (mode_group, dxcc, band) -> set of ids
-    combo_to_ids: dict[tuple[str, str, str], set[int]] = {}
-    for row in all_matching:
-        qso_id, mode, dxcc, band = row
-        mode_group = _get_mode_group(mode)
-        key = (mode_group, dxcc, band)
-        if key not in combo_to_ids:
-            combo_to_ids[key] = set()
-        combo_to_ids[key].add(qso_id)
+    # Build sets of filled slots (from credited QSOs only)
+    filled_band_slots: set[tuple[str, str]] = set()  # (dxcc, band)
+    filled_mode_slots: set[tuple[str, str]] = set()  # (dxcc, mode_group)
 
-    # Check uniqueness for each QSO we're interested in
+    for row in credited_qsos:
+        _, mode, dxcc, band = row
+        filled_band_slots.add((dxcc, band))
+        filled_mode_slots.add((dxcc, _get_mode_group(mode)))
+
+    # Check each QSO - unique if it fills ANY unfilled slot
     result = {}
     for qso in qsos:
-        mode_group = _get_mode_group(qso.mode)
-        key = (mode_group, qso.dxcc, qso.band)
-        ids_with_combo = combo_to_ids.get(key, set())
-        # Unique if this QSO is the only one with this combination
-        # (or equivalently, if removing this QSO leaves no others)
-        other_count = len(ids_with_combo - {qso.id})
-        result[qso.id] = other_count == 0
+        band_slot = (qso.dxcc, qso.band)
+        mode_slot = (qso.dxcc, _get_mode_group(qso.mode))
+
+        is_new_band_slot = band_slot not in filled_band_slots
+        is_new_mode_slot = mode_slot not in filled_mode_slots
+
+        # Unique if EITHER slot is new
+        result[qso.id] = is_new_band_slot or is_new_mode_slot
 
     return result
 
