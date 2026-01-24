@@ -1,9 +1,14 @@
 from datetime import datetime, timezone
 
+from cachetools import TTLCache
 from flask import current_app, request, session
 
 from .dataclasses import AwardsDetail, TripleDetail
 from .parser import parse_award
+
+# Server-side cache with 30-minute TTL (1800 seconds)
+# maxsize=1000 allows caching for ~166 users * 6 awards each
+_award_cache: TTLCache = TTLCache(maxsize=1000, ttl=1800)
 
 
 def is_expired(
@@ -34,31 +39,20 @@ def get_award_details(
         a list of award details, or triple details as the first argument, and
         the time it was parsed as the second argument.
     """
-    # Attempt to retrieve cached award from cookies
-    award_details: list[AwardsDetail] | None = session.get(
-        f"{award}_details", default=None
-    )
-    award_parsed_at: datetime = session.get(f"{award}_parsed_at", default=None)
+    op = session.get("op")
+    cache_key = f"{op}:{award}"
 
     force_reload: bool = request.args.get("force_reload", type=bool, default=False)
 
-    # If a reload is requested, or data expired/missing
-    if (
-        force_reload
-        or is_expired(
-            datetime_obj=award_parsed_at,
-            expiration_time=current_app.config.get("SESSION_CACHE_EXPIRATION"),
-        )
-        or not award_details
-    ):
-        # Get it and cache it
-        award_details = parse_award(award=award)
-        award_parsed_at = datetime.now(timezone.utc)
-        session.update(
-            {
-                f"{award}_details": award_details,
-                f"{award}_parsed_at": award_parsed_at,
-            }
-        )
+    # Check server-side cache first (unless force reload)
+    if not force_reload and cache_key in _award_cache:
+        return _award_cache[cache_key]
+
+    # Fetch and parse award data
+    award_details = parse_award(award=award)
+    award_parsed_at = datetime.now(timezone.utc)
+
+    # Store in server-side cache
+    _award_cache[cache_key] = (award_details, award_parsed_at)
 
     return award_details, award_parsed_at

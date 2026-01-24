@@ -2,6 +2,7 @@ import re
 
 from bs4 import BeautifulSoup
 from flask import current_app, request
+from requests import Response as RResponse
 
 from .. import lotw
 from ..dataclasses import TripleDetail
@@ -9,8 +10,13 @@ from ..urls import TRIPLE_PAGE_URL
 
 
 def triple() -> list[TripleDetail]:
+    """Fetch and parse Triple Play award page."""
     response = lotw.get(TRIPLE_PAGE_URL)
+    return parse_triple_response(response)
 
+
+def parse_triple_response(response: RResponse) -> list[TripleDetail]:
+    """Parse a pre-fetched Triple Play response."""
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")
 

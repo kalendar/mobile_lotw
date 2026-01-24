@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from ... import lotw
 from ...database.queries import (
-    get_qso_report_by_timestamp,
+    get_qso_reports_by_timestamps,
     get_user,
 )
 from ...database.table_declarations import QSOReport
@@ -73,15 +73,20 @@ def add_reports_to_db(qso_reports: list[DCQSOReport], has_imported: bool) -> Non
         session_: Session
 
         user = get_user(op=session.get("op"), session=session_)
-        for qso_report in qso_reports:
-            report = None
 
-            if has_imported:
-                report = get_qso_report_by_timestamp(
-                    app_lotw_qso_timestamp=qso_report.app_lotw_qso_timestamp,
-                    call=qso_report.call,
-                    session=session_,
-                )
+        # Bulk fetch existing reports if user has imported before
+        existing_reports: dict = {}
+        if has_imported:
+            timestamp_call_pairs = [
+                (qr.app_lotw_qso_timestamp, qr.call) for qr in qso_reports
+            ]
+            existing_reports = get_qso_reports_by_timestamps(
+                timestamp_call_pairs, session_
+            )
+
+        for qso_report in qso_reports:
+            key = (qso_report.app_lotw_qso_timestamp, qso_report.call)
+            report = existing_reports.get(key) if has_imported else None
 
             if not report:
                 current_app.logger.debug(

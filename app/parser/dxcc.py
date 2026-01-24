@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from flask import request
+from requests import Response as RResponse
 
 from .. import lotw
 from ..dataclasses import AwardsDetail
@@ -7,8 +8,13 @@ from ..urls import DXCC_PAGE_URL
 
 
 def dxcc() -> list[AwardsDetail]:
+    """Fetch and parse DXCC award page."""
     response = lotw.get(DXCC_PAGE_URL)
+    return parse_dxcc_response(response)
 
+
+def parse_dxcc_response(response: RResponse) -> list[AwardsDetail]:
+    """Parse a pre-fetched DXCC response."""
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")
 

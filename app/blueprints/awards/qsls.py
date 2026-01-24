@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 from ...cache import is_expired
 from ...database.queries import (
+    check_unique_qsos_bulk,
     get_25_most_recent_rxqsls,
     get_user,
-    is_unique_qso,
 )
 from ...database.table_declarations import QSOReport
 from ...urls import QSLS_PAGE_URL
@@ -54,12 +54,13 @@ def qsls():
             user=user, session=session_
         )
 
+        # Bulk check uniqueness for all QSLs in one query
+        uniqueness_map = check_unique_qsos_bulk(user, qsls, session_)
         qsl_tuples = [
             (
                 qsl,
                 qsl.seen,
-                is_unique_qso(user, qsl, session_),
-                # qsl.app_lotw_credit_granted,
+                uniqueness_map.get(qsl.id, False),
             )
             for qsl in qsls
         ]

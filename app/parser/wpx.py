@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from flask import request
+from requests import Response as RResponse
 
 from .. import lotw
 from ..dataclasses import AwardsDetail
@@ -7,8 +8,13 @@ from ..urls import WPX_PAGE_URL
 
 
 def wpx() -> list[AwardsDetail]:
+    """Fetch and parse WPX award page."""
     response = lotw.get(WPX_PAGE_URL)
+    return parse_wpx_response(response)
 
+
+def parse_wpx_response(response: RResponse) -> list[AwardsDetail]:
+    """Parse a pre-fetched WPX response."""
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")
 
