@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from flask import request, url_for
+from requests import Response as RResponse
 
 from .. import lotw
 from ..dataclasses import AwardsDetail
@@ -7,8 +8,13 @@ from ..urls import WAS_PAGE_URL
 
 
 def was() -> list[AwardsDetail]:
+    """Fetch and parse WAS award page."""
     response = lotw.get(WAS_PAGE_URL)
+    return parse_was_response(response)
 
+
+def parse_was_response(response: RResponse) -> list[AwardsDetail]:
+    """Parse a pre-fetched WAS response."""
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")
 

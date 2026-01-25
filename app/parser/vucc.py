@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from flask import request
+from requests import Response as RResponse
 
 from .. import lotw
 from ..dataclasses import AwardsDetail
@@ -7,8 +8,13 @@ from ..urls import VUCC_PAGE_URL
 
 
 def vucc() -> list[AwardsDetail]:
+    """Fetch and parse VUCC award page."""
     response = lotw.get(VUCC_PAGE_URL)
+    return parse_vucc_response(response)
 
+
+def parse_vucc_response(response: RResponse) -> list[AwardsDetail]:
+    """Parse a pre-fetched VUCC response."""
     op = request.cookies.get("op")
     soup = BeautifulSoup(response.content, "html.parser")
 

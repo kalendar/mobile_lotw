@@ -1,7 +1,9 @@
 from .functional import (
+    check_unique_qsos_bulk,
     ensure_user,
     get_object,
     get_qso_report_by_timestamp,
+    get_qso_reports_by_timestamps,
     get_user,
     is_unique_qso,
 )
