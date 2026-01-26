@@ -81,7 +81,7 @@ def add_reports_to_db(qso_reports: list[DCQSOReport], has_imported: bool) -> Non
                 (qr.app_lotw_qso_timestamp, qr.call) for qr in qso_reports
             ]
             existing_reports = get_qso_reports_by_timestamps(
-                timestamp_call_pairs, session_
+                timestamp_call_pairs, user.id, session_
             )
 
         for qso_report in qso_reports:

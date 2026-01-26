@@ -167,11 +167,12 @@ def check_unique_qsos_bulk(
 
 
 def get_qso_report_by_timestamp(
-    app_lotw_qso_timestamp: datetime, call: str, session: Session
+    app_lotw_qso_timestamp: datetime, call: str, user_id: int, session: Session
 ) -> QSOReport | None:
     return session.scalar(
         select(QSOReport).where(
             and_(
+                QSOReport.user_id == user_id,
                 QSOReport.app_lotw_qso_timestamp == app_lotw_qso_timestamp,
                 QSOReport.call == call,
             )
@@ -180,7 +181,7 @@ def get_qso_report_by_timestamp(
 
 
 def get_qso_reports_by_timestamps(
-    timestamp_call_pairs: list[tuple[datetime, str]], session: Session
+    timestamp_call_pairs: list[tuple[datetime, str]], user_id: int, session: Session
 ) -> dict[tuple[datetime, str], QSOReport]:
     """Fetch multiple QSO reports by (timestamp, call) pairs in a single query."""
     if not timestamp_call_pairs:
@@ -194,7 +195,7 @@ def get_qso_reports_by_timestamps(
         for ts, call in timestamp_call_pairs
     ]
 
-    stmt = select(QSOReport).where(or_(*conditions))
+    stmt = select(QSOReport).where(and_(QSOReport.user_id == user_id, or_(*conditions)))
     reports = session.scalars(stmt).all()
 
     return {
