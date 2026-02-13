@@ -9,42 +9,51 @@ from ..urls import ACCOUNT_CREDITS_URL
 
 
 def account_credits() -> tuple[str, list[Row], str, str]:
+    awg_id = request.args.get("awg_id", type=str, default="")
+    ac_acct = request.args.get("ac_acct", type=str, default="")
+    aw_id = request.args.get("aw_id", type=str, default="")
+
+    if not awg_id or not ac_acct or not aw_id:
+        return "Unknown", [], "Award Details", "Unknown"
+
     url_args = (
         "awg_id="
-        + request.args.get("awg_id")
+        + awg_id
         + "&ac_acct="
-        + request.args.get("ac_acct")
+        + ac_acct
         + "&aw_id="
-        + request.args.get("aw_id")
+        + aw_id
         + "&ac_view=allc"
     )
 
     response = lotw.get(f"{ACCOUNT_CREDITS_URL}{url_args}")
 
-    if request.args.get("awg_id") == "WAS":
+    if awg_id == "WAS":
         # Pass WAS to the table in the view on the next page
-        table_header = lookup_label(request.args.get("aw_id"))
+        table_header = lookup_label(aw_id)
 
-    elif request.args.get("awg_id") == "WAZ":
+    elif awg_id == "WAZ":
         # Pass WAZ to the table in the view on the next page
-        table_header = lookup_label(request.args.get("aw_id"))
+        table_header = lookup_label(aw_id)
 
-    elif request.args.get("awg_id") == "VUCC":
-        if request.args.get("aw_id") == "FFMA":
+    elif awg_id == "VUCC":
+        if aw_id == "FFMA":
             table_header = "Fred Fish Memorial Award"
         else:
-            table_header = lookup_label(request.args.get("aw_id"))
+            table_header = lookup_label(aw_id)
 
-    elif request.args.get("awg_id") == "WPX":
+    elif awg_id == "WPX":
         # Pass WPX to the table in the view on the next page
-        table_header = lookup_label(request.args.get("aw_id"))
+        table_header = lookup_label(aw_id)
 
     else:
         # Pass DXCC to the table in the view on the next page
-        table_header = lookup_dxcc_label(request.args.get("aw_id"))
+        table_header = lookup_dxcc_label(aw_id)
 
     soup = BeautifulSoup(response.content, "html.parser")
     table = soup.find("table", attrs={"id": "creditsTable"})
+    if table is None:
+        return awg_id, [], f"{awg_id} All Credits", table_header
 
     rows = table.find_all("tr")
     award_details: list[Row] = []
@@ -53,7 +62,7 @@ def account_credits() -> tuple[str, list[Row], str, str]:
         columns = row.find_all("td")
         if not columns:
             continue
-        if request.args.get("awg_id") == "WAS":
+        if awg_id == "WAS":
             award_detail = Row(
                 label=re.sub(
                     current_app.config["REGEX_CACHE"]["STATES_COMPILED"],
@@ -67,7 +76,7 @@ def account_credits() -> tuple[str, list[Row], str, str]:
                 else columns[1].text,
             )
 
-        elif request.args.get("awg_id") == "WAZ":
+        elif awg_id == "WAZ":
             award_detail = Row(
                 label=columns[0].text,
                 value=str(columns[1].find("a"))
@@ -77,7 +86,7 @@ def account_credits() -> tuple[str, list[Row], str, str]:
                 else columns[1].text,
             )
 
-        elif request.args.get("awg_id") == "DXCC":
+        elif awg_id == "DXCC":
             award_detail = Row(
                 label=columns[0].text,
                 value=str(columns[1].find("a"))
@@ -87,7 +96,7 @@ def account_credits() -> tuple[str, list[Row], str, str]:
                 else columns[1].text,
             )
 
-        elif request.args.get("awg_id") == "VUCC":
+        elif awg_id == "VUCC":
             award_detail = Row(
                 label=columns[0].text,
                 value=str(columns[1].find("a"))
@@ -99,8 +108,8 @@ def account_credits() -> tuple[str, list[Row], str, str]:
 
         award_details.append(award_detail)
 
-    award: str = request.args.get("awg_id")
-    title: str = request.args.get("awg_id") + " All Credits"
+    award: str = awg_id
+    title: str = awg_id + " All Credits"
 
     return award, award_details, title, table_header
 

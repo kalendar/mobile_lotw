@@ -5,13 +5,15 @@ from ..table_declarations import QSOReport, User
 
 
 def callsign(user: User, query: str, session: Session) -> Sequence[QSOReport]:
+    normalized = (query or "").strip()
+    wildcard_query = f"%{normalized}%"
     stmt = (
         select(QSOReport)
         .join(User)
         .where(
             and_(
                 User.id == user.id,
-                QSOReport.call.ilike(query),
+                QSOReport.call.ilike(wildcard_query),
             )
         )
         .order_by(QSOReport.app_lotw_rxqsl.desc())

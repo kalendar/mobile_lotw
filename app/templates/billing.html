@@ -1,0 +1,40 @@
+{% extends "index.html" %}
+
+{% block content %}
+  <h2>Billing</h2>
+  <p>Plan: <b>{{ subscription.tier }}</b></p>
+  <p>Subscription Status: <b>{{ subscription.status }}</b></p>
+  <p>
+    Current Period End:
+    <b>{{ subscription.current_period_end if subscription.current_period_end else "N/A" }}</b>
+  </p>
+  <p>
+    Entitlement Expires:
+    <b>{{ subscription.entitlement_expires_at if subscription.entitlement_expires_at else "N/A" }}</b>
+  </p>
+
+  {% if stripe_ready %}
+    <p>
+      <button id="start-checkout" class="btn btn-primary">Start Subscription</button>
+    </p>
+    <script>
+      document.getElementById("start-checkout")?.addEventListener("click", async () => {
+        const response = await fetch("{{ url_for('billing.create_checkout_session') }}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        if (!response.ok) {
+          alert("Unable to start checkout right now.");
+          return;
+        }
+        const data = await response.json();
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
+        }
+      });
+    </script>
+  {% else %}
+    <p>Billing is not configured yet.</p>
+  {% endif %}
+{% endblock %}

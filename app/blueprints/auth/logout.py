@@ -1,5 +1,4 @@
 from flask import (
-    make_response,
     redirect,
     session,
     url_for,
@@ -13,8 +12,5 @@ def logout():
     # Remove relevant objects from session
     session.clear()
 
-    # Remove op cookie and redirect home
-    response = make_response(redirect(url_for("auth.login")))
-    response.delete_cookie("op")
-
-    return response
+    # Redirect to login
+    return redirect(url_for("auth.login"))

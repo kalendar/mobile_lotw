@@ -23,8 +23,8 @@ def get_user_qsos_for_map_by_rxqso(
         .where(
             and_(
                 User.id == user.id,
-                QSOReport.latitude != None,
-                QSOReport.longitude != None,
+                QSOReport.latitude.is_not(None),
+                QSOReport.longitude.is_not(None),
             )
         )
         .order_by(QSOReport.app_lotw_rxqsl.desc())
@@ -44,8 +44,8 @@ def get_user_qsos_for_map_by_rxqso_count(
         .where(
             and_(
                 User.id == user.id,
-                QSOReport.latitude != None,
-                QSOReport.longitude != None,
+                QSOReport.latitude.is_not(None),
+                QSOReport.longitude.is_not(None),
             )
         )
     )

@@ -14,7 +14,7 @@ MATCH_NO = re.compile(r"Last upload for <b>[^<]+</b>&#58; No log data found")
 
 
 @bp.route("/find", methods=["GET", "POST"])
-@login_required(next_page="find")
+@login_required(next_page="awards.find")
 def find():
     # If requesting
     if request.method == "POST":

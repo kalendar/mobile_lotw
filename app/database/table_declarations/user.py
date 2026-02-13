@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from json import dumps, loads
 from typing import Any
 
@@ -14,11 +14,49 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    op: Mapped[str]
+    op: Mapped[str] = mapped_column(index=True)
+    email: Mapped[str | None]
 
     lotw_cookies_b: Mapped[bytes | None]
+    lotw_last_ok_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    lotw_last_fail_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    lotw_fail_count: Mapped[int] = mapped_column(default=0)
+    lotw_auth_state: Mapped[str] = mapped_column(default="unknown")
+    lotw_last_fail_reason: Mapped[str | None]
 
     has_imported: Mapped[bool] = mapped_column(default=False)
+    qso_sync_status: Mapped[str] = mapped_column(default="idle")
+    qso_sync_started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    qso_sync_finished_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    qso_sync_last_error: Mapped[str | None]
+
+    plan_tier: Mapped[str] = mapped_column(default="free")
+    stripe_customer_id: Mapped[str | None] = mapped_column(index=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(index=True)
+    subscription_status: Mapped[str] = mapped_column(
+        index=True,
+        default="inactive",
+    )
+    subscription_current_period_end: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    entitlement_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
 
     qso_reports: Mapped[list[QSOReport]] = relationship(back_populates="user")
 
@@ -34,12 +72,22 @@ class User(Base):
         self,
         op: str,
         qso_reports_last_update: date = date(year=1970, month=1, day=1),
-        qso_reports: list[QSOReport] = [],
+        qso_reports: list[QSOReport] | None = None,
         **kw: Any,
     ):
         self.op = op
-        self.qso_reports.extend(qso_reports)
+        self.qso_reports.extend(qso_reports or [])
         self.qso_reports_last_update = qso_reports_last_update
+
+    @property
+    def has_active_entitlement(self) -> bool:
+        now = datetime.now(tz=timezone.utc)
+        status = (self.subscription_status or "").lower()
+        if status in {"active", "trialing"}:
+            return True
+        if self.entitlement_expires_at and self.entitlement_expires_at > now:
+            return True
+        return False
 
     @property
     def lotw_cookies(self) -> dict[str, str] | None:

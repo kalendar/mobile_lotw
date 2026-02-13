@@ -124,16 +124,54 @@ os.environ['DB_NAME'] = 'mobile_lotw.db'
 # Time in minutes before expiring cached information.
 os.environ['SESSION_CACHE_EXPIRATION'] = '30'
 
+# Timeout for requests to lotw.arrl.org in seconds.
+os.environ['LOTW_REQUEST_TIMEOUT_SECONDS'] = '20'
+
+# Use secure session cookies in production HTTPS environments.
+os.environ['MOBILE_LOTW_SECURE_COOKIES'] = '1'
+
+# Background import worker count.
+os.environ['QSO_IMPORT_MAX_WORKERS'] = '2'
+
+# Set to 1 to require active paid subscription for premium routes.
+os.environ['REQUIRE_ACTIVE_SUBSCRIPTION'] = '0'
+
 # URL to the postgresql database
 os.environ['DB_URL'] = "postgresql+psycopg://david:password@localhost:5432/mobile_lotw"
 
 # The API key for the deployment endpoint.
 os.environ['API_KEY'] = "REPLACE_ME_NOW"
 
+# Optional deploy webhook security (preferred over API key in URL/query).
+os.environ['DEPLOY_WEBHOOK_SECRET'] = "REPLACE_ME_NOW"
+os.environ['DEPLOY_ALLOWED_IPS'] = "127.0.0.1,10.0.0.1"
+
 # The path to your deployment script.
 os.environ['DEPLOY_SCRIPT_PATH'] = "/path/to/your/deploy/script"
+
+# Optional Stripe settings for billing/subscriptions.
+os.environ['STRIPE_SECRET_KEY'] = "REPLACE_ME_NOW"
+os.environ['STRIPE_WEBHOOK_SECRET'] = "REPLACE_ME_NOW"
+os.environ['STRIPE_PRICE_ID'] = "price_REPLACE_ME"
 
 from mobile_lotw.app import create_app
 
 application = create_app()
 ```
+
+### Database migrations
+
+Run Alembic migrations after deployment changes that add columns or tables:
+
+```sh
+alembic upgrade head
+```
+
+### Deploy endpoint hardening
+
+The deploy endpoint now expects:
+1. `POST /api/v1/deploy`
+2. Either:
+   - `X-MobileLoTW-Signature` header (HMAC-SHA256 of raw body using `DEPLOY_WEBHOOK_SECRET`), or
+   - fallback `X-API-KEY` header if no webhook secret is configured
+3. Optional source IP allowlist via `DEPLOY_ALLOWED_IPS`

@@ -18,7 +18,7 @@ venv
 
 # Deploy script
 deploy.sh
+DEPLOY_RUNBOOK.local.md
 
 # Database related
-alembic/versions
 /database
