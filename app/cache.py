@@ -20,7 +20,7 @@ def is_expired(
         return True
 
     time_delta = datetime.now(tz=timezone.utc) - datetime_obj
-    minutes_passed = time_delta.seconds / 60
+    minutes_passed = time_delta.total_seconds() / 60
 
     return minutes_passed > expiration_time
 

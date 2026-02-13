@@ -15,7 +15,7 @@
 {% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    fetch("/api/v1/import_qsos_data", {
+    fetch("/api/v1/import_qsos_data?async=true", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -8,11 +8,44 @@
       ><em>See full details on LotW</em></a>.
   </p>
 
+  {% if lotw_health %}
+    <p>
+      LoTW session status: {{ lotw_health.state }}<br />
+      Last successful LoTW fetch: {{ lotw_health.last_ok_at }}<br />
+      Last failed LoTW fetch: {{ lotw_health.last_fail_at }}<br />
+      Consecutive failures: {{ lotw_health.fail_count }}<br />
+      {% if lotw_health.last_fail_reason %}
+        Last failure reason: {{ lotw_health.last_fail_reason }}<br />
+      {% endif %}
+    </p>
+  {% endif %}
+
+  {% if qso_sync %}
+    <p>
+      QSO Sync Status: {{ qso_sync.status }}<br />
+      Sync Started: {{ qso_sync.started_at }}<br />
+      Sync Finished: {{ qso_sync.finished_at }}<br />
+      {% if qso_sync.last_error %}
+        Last Sync Error: {{ qso_sync.last_error }}<br />
+      {% endif %}
+    </p>
+  {% endif %}
+
   {% if parsed_at %}
     <p>
       Info downloaded at {{ parsed_at }}.<br />
       <a href="{{ force_reload }}">Refresh now</a>.
     </p>
     <br />
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {% if qso_sync and qso_sync.status == "syncing" %}
+    <script>
+      setTimeout(() => {
+        window.location.reload();
+      }, 15000);
+    </script>
   {% endif %}
 {% endblock %}

@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from flask import request, url_for
+from flask import session, url_for
 from requests import Response as RResponse
 
 from .. import lotw
@@ -15,7 +15,7 @@ def was() -> list[AwardsDetail]:
 
 def parse_was_response(response: RResponse) -> list[AwardsDetail]:
     """Parse a pre-fetched WAS response."""
-    op = request.cookies.get("op")
+    op = session.get("op", "")
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Parse the table to get rows

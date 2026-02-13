@@ -18,10 +18,13 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option(
-    "sqlalchemy.url",
-    f"sqlite:///{(Path(__file__) / f"../../{getenv("DB_NAME")}").resolve()}",
-)
+if getenv("DB_URL"):
+    config.set_main_option("sqlalchemy.url", getenv("DB_URL"))
+else:
+    config.set_main_option(
+        "sqlalchemy.url",
+        f"sqlite:///{(Path(__file__) / f"../../{getenv("DB_NAME")}").resolve()}",
+    )
 
 # add your model's MetaData object here
 # for 'autogenerate' support

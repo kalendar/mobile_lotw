@@ -1,7 +1,7 @@
 import re
 
 from bs4 import BeautifulSoup
-from flask import current_app, request
+from flask import current_app, session
 from requests import Response as RResponse
 
 from .. import lotw
@@ -17,7 +17,7 @@ def triple() -> list[TripleDetail]:
 
 def parse_triple_response(response: RResponse) -> list[TripleDetail]:
     """Parse a pre-fetched Triple Play response."""
-    op = request.cookies.get("op")
+    op = session.get("op", "")
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Parse the table to get rows

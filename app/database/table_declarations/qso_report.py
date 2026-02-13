@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
 from adi_parser.dataclasses import QSOReport as QSOReportDC
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -15,6 +15,12 @@ if TYPE_CHECKING:
 
 class QSOReport(Base):
     __tablename__ = "qso_reports"
+    __table_args__ = (
+        Index("ix_qso_reports_user_rxqsl", "user_id", "app_lotw_rxqsl"),
+        Index("ix_qso_reports_user_call", "user_id", "call"),
+        Index("ix_qso_reports_user_qso_timestamp", "user_id", "app_lotw_qso_timestamp"),
+        Index("ix_qso_reports_user_lat_long", "user_id", "latitude", "longitude"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -86,11 +92,12 @@ class QSOReport(Base):
 
     def __init__(
         self,
-        user: User,
+        user: User | None = None,
         dataclass: QSOReportDC | None = None,
         **kw: Any,
     ):
-        self.user = user
+        if user is not None:
+            self.user = user
 
         if dataclass:
             non_under_attrs = [

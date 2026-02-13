@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 
-from flask import current_app, render_template, request, session, url_for
+from flask import current_app, flash, render_template, request, session, url_for
 from sqlalchemy.orm import Session
 
+from ...background_jobs import enqueue_qso_import
 from ...cache import is_expired
 from ...database.queries import (
     check_unique_qsos_bulk,
@@ -11,7 +12,6 @@ from ...database.queries import (
 )
 from ...database.table_declarations import QSOReport
 from ...urls import QSLS_PAGE_URL
-from ..api.import_qsos_data import import_qsos_data
 from ..auth.wrappers import login_required
 from .base import bp
 
@@ -47,8 +47,13 @@ def qsls():
             or force_reload
             or is_expired(qso_reports_last_update_time, 60)
         ):
-            current_app.logger.info(f"{user.op}'s QSOs are expired, importing.")
-            import_qsos_data()
+            current_app.logger.info("%s's QSOs are expired, starting sync.", user.op)
+            started = enqueue_qso_import(op=user.op)
+            if started:
+                flash(
+                    "Refreshing QSO data in the background. You can keep using the app.",
+                    "info",
+                )
 
         qsls: list[QSOReport] = get_25_most_recent_rxqsls(
             user=user, session=session_
@@ -68,9 +73,32 @@ def qsls():
         for qsl in qsls:
             qsl.seen = True
 
-        parsed_at = user.qso_reports_last_update_time.strftime(
-            "%d/%m/%Y, %H:%M:%S"
+        parsed_at = (
+            user.qso_reports_last_update_time.strftime("%d/%m/%Y, %H:%M:%S")
+            if user.qso_reports_last_update_time
+            else "Pending initial sync"
         )
+        lotw_health = {
+            "state": user.lotw_auth_state or "unknown",
+            "last_ok_at": user.lotw_last_ok_at.strftime("%d/%m/%Y, %H:%M:%S")
+            if user.lotw_last_ok_at
+            else "Never",
+            "last_fail_at": user.lotw_last_fail_at.strftime("%d/%m/%Y, %H:%M:%S")
+            if user.lotw_last_fail_at
+            else "Never",
+            "fail_count": user.lotw_fail_count or 0,
+            "last_fail_reason": user.lotw_last_fail_reason,
+        }
+        qso_sync = {
+            "status": user.qso_sync_status or "idle",
+            "started_at": user.qso_sync_started_at.strftime("%d/%m/%Y, %H:%M:%S")
+            if user.qso_sync_started_at
+            else "N/A",
+            "finished_at": user.qso_sync_finished_at.strftime("%d/%m/%Y, %H:%M:%S")
+            if user.qso_sync_finished_at
+            else "N/A",
+            "last_error": user.qso_sync_last_error,
+        }
 
         return render_template(
             "qsls.html",
@@ -78,6 +106,8 @@ def qsls():
             qsls_page_url=QSLS_PAGE_URL,
             parsed_at=parsed_at,
             user_op=user.op,
+            lotw_health=lotw_health,
+            qso_sync=qso_sync,
             force_reload=url_for("awards.qsls", force_reload=True),
             title="25 Most Recent QSLs",
         )

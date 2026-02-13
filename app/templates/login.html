@@ -3,12 +3,14 @@
 {% block content %}
   <br />
   <form action="#" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
     <p>
       <input
         type="text"
         name="login"
         placeholder="Your callsign"
         class="form-control-lg"
+        required
       />
     </p>
     <p>
@@ -17,6 +19,7 @@
         name="password"
         placeholder="Your LotW password"
         class="form-control-lg"
+        required
       />
     </p>
     <p>

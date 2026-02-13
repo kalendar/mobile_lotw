@@ -7,16 +7,22 @@ from ..urls import DETAILS_PAGE_URL
 
 
 def qsodetail() -> QSODetail:
-    response = lotw.get(DETAILS_PAGE_URL + request.args.get("qso"))
+    qso = request.args.get("qso", type=str, default="").strip()
+    qso_detail = QSODetail()
+    if not qso:
+        return qso_detail
+
+    response = lotw.get(DETAILS_PAGE_URL + qso)
 
     soup = BeautifulSoup(response.content, "html.parser")
-
     page_header = soup.find("h3")
-    qso_table = page_header.findNext("table")
+    if not page_header:
+        return qso_detail
 
+    qso_table = page_header.find_next("table")
+    if not qso_table:
+        return qso_detail
     rows = qso_table.find_all("tr")
-
-    qso_detail = QSODetail()
 
     for row in rows:
         tds = row.find_all("td")

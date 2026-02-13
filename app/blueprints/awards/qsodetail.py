@@ -16,7 +16,7 @@ from .base import bp
 
 
 @bp.get("/qsodetail")
-@login_required(next_page="qsls")
+@login_required(next_page="awards.qsls")
 def qsodetail():
     qso_db_id = request.args.get("id", default=None, type=int)
 
