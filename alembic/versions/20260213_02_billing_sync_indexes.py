@@ -10,6 +10,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.exc import ProgrammingError
 
 
 # revision identifiers, used by Alembic.
@@ -21,6 +22,47 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def _index_names(inspector: sa.Inspector, table_name: str) -> set[str]:
     return {index["name"] for index in inspector.get_indexes(table_name)}
+
+
+def _is_duplicate_table_error(error: ProgrammingError) -> bool:
+    # Postgres duplicate table SQLSTATE.
+    code = getattr(getattr(error, "orig", None), "sqlstate", None)
+    return code == "42P07"
+
+
+def _create_stripe_events_table_if_missing(bind, inspector: sa.Inspector) -> None:
+    if inspector.has_table("stripe_events"):
+        return
+
+    try:
+        op.create_table(
+            "stripe_events",
+            sa.Column("id", sa.Integer(), primary_key=True),
+            sa.Column("event_id", sa.String(length=255), nullable=False),
+            sa.Column("event_type", sa.String(length=255), nullable=False),
+            sa.Column(
+                "status",
+                sa.String(length=32),
+                nullable=False,
+                server_default="received",
+            ),
+            sa.Column("payload", sa.JSON(), nullable=True),
+            sa.Column("processed_at", sa.DateTime(timezone=True), nullable=True),
+        )
+    except ProgrammingError as error:
+        # Allow concurrent/previous creation to pass safely.
+        if not _is_duplicate_table_error(error):
+            raise
+
+    refreshed_inspector = sa.inspect(bind)
+    stripe_indexes = _index_names(refreshed_inspector, "stripe_events")
+    if "ix_stripe_events_event_id" not in stripe_indexes:
+        op.create_index(
+            "ix_stripe_events_event_id",
+            "stripe_events",
+            ["event_id"],
+            unique=True,
+        )
 
 
 def upgrade() -> None:
@@ -150,27 +192,7 @@ def upgrade() -> None:
                 unique=False,
             )
 
-    if "stripe_events" not in inspector.get_table_names():
-        op.create_table(
-            "stripe_events",
-            sa.Column("id", sa.Integer(), primary_key=True),
-            sa.Column("event_id", sa.String(length=255), nullable=False),
-            sa.Column("event_type", sa.String(length=255), nullable=False),
-            sa.Column(
-                "status",
-                sa.String(length=32),
-                nullable=False,
-                server_default="received",
-            ),
-            sa.Column("payload", sa.JSON(), nullable=True),
-            sa.Column("processed_at", sa.DateTime(timezone=True), nullable=True),
-        )
-        op.create_index(
-            "ix_stripe_events_event_id",
-            "stripe_events",
-            ["event_id"],
-            unique=True,
-        )
+    _create_stripe_events_table_if_missing(bind, inspector)
 
 
 def downgrade() -> None:
