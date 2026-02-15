@@ -17,15 +17,6 @@
       gtag("config", "G-TEQF5W3DWJ");
     </script>
 
-    <script src="https://unpkg.com/webtonative@1.0.50/webtonative.min.js"></script>
-
-    {% if user_op %}
-      <script>
-        const { setExternalUserId } = WTN.OneSignal;
-        setExternalUserId("{{user_op}}");
-      </script>
-    {% endif %}
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
@@ -76,6 +67,22 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      // Cleanup after removing Progressier/WebToNative PWA integration.
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            const scriptUrl = registration.active?.scriptURL || "";
+            if (
+              scriptUrl.includes("progressier") ||
+              scriptUrl.includes("webtonative")
+            ) {
+              registration.unregister();
+            }
+          }
+        });
+      }
+    </script>
     {% block scripts %}{% endblock %}
   </body>
 </html>

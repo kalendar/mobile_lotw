@@ -123,10 +123,6 @@ def create_app() -> Flask:
     def delete_account():
         return render_template("delete_account.html")
 
-    @app.get("/.well-known/assetlinks.json")
-    def google_link():
-        return redirect(url_for("static", filename="assetlinks.json"))
-
     @app.get("/qsl-digest-sw.js")
     def qsl_digest_service_worker():
         return send_from_directory(
