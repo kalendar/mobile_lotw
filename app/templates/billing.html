@@ -14,15 +14,29 @@
   </p>
 
   {% if stripe_ready %}
-    <p>
-      <button id="start-checkout" class="btn btn-primary">Start Subscription</button>
-    </p>
+    <div class="text-start mx-auto mb-3" style="max-width: 640px">
+      <p><strong>Choose plan:</strong></p>
+      {% if price_options.get("monthly") %}
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="billing-plan" id="billing-plan-monthly" value="monthly" checked />
+          <label class="form-check-label" for="billing-plan-monthly">Monthly</label>
+        </div>
+      {% endif %}
+      {% if price_options.get("annual") %}
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="billing-plan" id="billing-plan-annual" value="annual" {% if not price_options.get("monthly") %}checked{% endif %} />
+          <label class="form-check-label" for="billing-plan-annual">Annual</label>
+        </div>
+      {% endif %}
+    </div>
+    <p><button id="start-checkout" class="btn btn-primary">Start Subscription</button></p>
     <script>
       document.getElementById("start-checkout")?.addEventListener("click", async () => {
+        const selectedPlan = document.querySelector('input[name="billing-plan"]:checked')?.value || "monthly";
         const response = await fetch("{{ url_for('billing.create_checkout_session') }}", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: JSON.stringify({ plan: selectedPlan }),
         });
         if (!response.ok) {
           alert("Unable to start checkout right now.");

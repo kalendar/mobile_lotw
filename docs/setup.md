@@ -152,7 +152,30 @@ os.environ['DEPLOY_SCRIPT_PATH'] = "/path/to/your/deploy/script"
 # Optional Stripe settings for billing/subscriptions.
 os.environ['STRIPE_SECRET_KEY'] = "REPLACE_ME_NOW"
 os.environ['STRIPE_WEBHOOK_SECRET'] = "REPLACE_ME_NOW"
+os.environ['STRIPE_PRICE_ID_MONTHLY'] = "price_REPLACE_ME"
+os.environ['STRIPE_PRICE_ID_ANNUAL'] = "price_REPLACE_ME"
+# Optional backward-compatible fallback if monthly key is not set:
 os.environ['STRIPE_PRICE_ID'] = "price_REPLACE_ME"
+
+# QSL digest notification controls.
+os.environ['DIGEST_NOTIFICATIONS_ENABLED'] = "1"
+os.environ['WEB_PUSH_ENABLED'] = "1"
+os.environ['DIGEST_EMAIL_ENABLED'] = "1"
+os.environ['DIGEST_DRY_RUN'] = "0"
+
+# Web push VAPID settings.
+os.environ['WEB_PUSH_VAPID_PUBLIC_KEY'] = "REPLACE_ME_NOW"
+os.environ['WEB_PUSH_VAPID_PRIVATE_KEY'] = "REPLACE_ME_NOW"
+os.environ['WEB_PUSH_VAPID_SUBJECT'] = "mailto:info@mobilelotw.org"
+
+# Digest links and SMTP fallback.
+os.environ['DIGEST_BASE_URL'] = "https://mobilelotw.org"
+os.environ['DIGEST_SMTP_HOST'] = "smtp.example.com"
+os.environ['DIGEST_SMTP_PORT'] = "587"
+os.environ['DIGEST_SMTP_USERNAME'] = "REPLACE_ME_NOW"
+os.environ['DIGEST_SMTP_PASSWORD'] = "REPLACE_ME_NOW"
+os.environ['DIGEST_SMTP_FROM_EMAIL'] = "info@mobilelotw.org"
+os.environ['DIGEST_SMTP_STARTTLS'] = "1"
 
 from mobile_lotw.app import create_app
 
@@ -166,6 +189,18 @@ Run Alembic migrations after deployment changes that add columns or tables:
 ```sh
 alembic upgrade head
 ```
+
+### QSL digest production verification
+
+After deployment and migration:
+1. Verify `/notifications/settings` loads for a paid user.
+2. Verify `/qsl/digest?date=YYYY-MM-DD` returns a digest page.
+3. Verify browser push subscription API works:
+   - `POST /api/v1/notifications/web-push/subscribe`
+   - `POST /api/v1/notifications/web-push/unsubscribe`
+4. Run one digest generation cycle and confirm rows in:
+   - `qsl_digest_batches`
+   - `notification_deliveries`
 
 ### Deploy endpoint hardening
 
