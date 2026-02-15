@@ -2,6 +2,7 @@ from .accountcredits import accountcredits
 from .base import bp
 from .dxcc import dxcc
 from .find import find
+from .qsl_digest import qsl_digest
 from .qsls import qsls
 from .qsodetail import qsodetail
 from .triple import triple

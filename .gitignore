@@ -19,6 +19,8 @@ venv
 # Deploy script
 deploy.sh
 DEPLOY_RUNBOOK.local.md
+private_key.pem
+public_key.pem
 
 # Database related
 /database

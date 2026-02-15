@@ -21,11 +21,26 @@ def _get_stripe():
 
 
 def _stripe_ready() -> bool:
+    monthly_price_id = getenv("STRIPE_PRICE_ID_MONTHLY") or getenv("STRIPE_PRICE_ID")
+    annual_price_id = getenv("STRIPE_PRICE_ID_ANNUAL")
     return bool(
         getenv("STRIPE_SECRET_KEY")
         and getenv("STRIPE_WEBHOOK_SECRET")
-        and getenv("STRIPE_PRICE_ID")
+        and (monthly_price_id or annual_price_id)
     )
+
+
+def _stripe_price_options() -> dict[str, str]:
+    options: dict[str, str] = {}
+    monthly_price_id = getenv("STRIPE_PRICE_ID_MONTHLY") or getenv("STRIPE_PRICE_ID")
+    annual_price_id = getenv("STRIPE_PRICE_ID_ANNUAL")
+
+    if monthly_price_id:
+        options["monthly"] = monthly_price_id
+    if annual_price_id:
+        options["annual"] = annual_price_id
+
+    return options
 
 
 def _timestamp_to_datetime(value: Any) -> datetime | None:
@@ -85,6 +100,7 @@ def overview():
         title="Billing",
         subscription=subscription,
         stripe_ready=_stripe_ready(),
+        price_options=_stripe_price_options(),
     )
 
 
@@ -96,13 +112,17 @@ def create_checkout_session():
         return jsonify({"error": "stripe_not_installed"}), 503
 
     secret_key = getenv("STRIPE_SECRET_KEY")
-    price_id = getenv("STRIPE_PRICE_ID")
-    if not secret_key or not price_id:
+    price_options = _stripe_price_options()
+    if not secret_key or not price_options:
         return jsonify({"error": "stripe_not_configured"}), 503
 
     stripe.api_key = secret_key
     payload = request.get_json(silent=True) or {}
     email = (payload.get("email") or "").strip() or None
+    plan = (payload.get("plan") or "monthly").strip().lower()
+    price_id = price_options.get(plan)
+    if not price_id:
+        return jsonify({"error": "invalid_plan"}), 400
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         user = get_user(op=session.get("op"), session=session_)
@@ -121,6 +141,7 @@ def create_checkout_session():
                 mode="subscription",
                 customer=user.stripe_customer_id,
                 line_items=[{"price": price_id, "quantity": 1}],
+                metadata={"selected_plan": plan},
                 success_url=url_for("billing.overview", _external=True)
                 + "?checkout=success",
                 cancel_url=url_for("billing.overview", _external=True)

@@ -11,6 +11,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_from_directory,
     session,
     url_for,
 )
@@ -84,6 +85,20 @@ def create_app() -> Flask:
         ),
         BILLING_UI_ENABLED=_env_flag("BILLING_UI_ENABLED", False),
         REGEX_CACHE=REGEX_CACHE,
+        WEB_PUSH_VAPID_PUBLIC_KEY=getenv("WEB_PUSH_VAPID_PUBLIC_KEY", ""),
+        WEB_PUSH_VAPID_PRIVATE_KEY=getenv("WEB_PUSH_VAPID_PRIVATE_KEY", ""),
+        WEB_PUSH_VAPID_SUBJECT=getenv("WEB_PUSH_VAPID_SUBJECT", ""),
+        DIGEST_BASE_URL=getenv("DIGEST_BASE_URL", ""),
+        DIGEST_SMTP_HOST=getenv("DIGEST_SMTP_HOST"),
+        DIGEST_SMTP_PORT=int(getenv("DIGEST_SMTP_PORT", "587")),
+        DIGEST_SMTP_USERNAME=getenv("DIGEST_SMTP_USERNAME"),
+        DIGEST_SMTP_PASSWORD=getenv("DIGEST_SMTP_PASSWORD"),
+        DIGEST_SMTP_FROM_EMAIL=getenv("DIGEST_SMTP_FROM_EMAIL", "info@mobilelotw.org"),
+        DIGEST_SMTP_STARTTLS=_env_flag("DIGEST_SMTP_STARTTLS", True),
+        DIGEST_NOTIFICATIONS_ENABLED=_env_flag("DIGEST_NOTIFICATIONS_ENABLED", True),
+        WEB_PUSH_ENABLED=_env_flag("WEB_PUSH_ENABLED", True),
+        DIGEST_EMAIL_ENABLED=_env_flag("DIGEST_EMAIL_ENABLED", True),
+        DIGEST_DRY_RUN=_env_flag("DIGEST_DRY_RUN", False),
     )
 
     # Logging level
@@ -111,6 +126,14 @@ def create_app() -> Flask:
     @app.get("/.well-known/assetlinks.json")
     def google_link():
         return redirect(url_for("static", filename="assetlinks.json"))
+
+    @app.get("/qsl-digest-sw.js")
+    def qsl_digest_service_worker():
+        return send_from_directory(
+            app.static_folder,
+            "qsl_digest_sw.js",
+            mimetype="application/javascript",
+        )
 
     def _is_api_request() -> bool:
         return request.path.startswith("/api/")

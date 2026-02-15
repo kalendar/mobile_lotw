@@ -1,0 +1,16 @@
+{% extends "index.html" %}
+
+{% block content %}
+  <p>Digest date: <strong>{{ digest_date }}</strong></p>
+
+  {% if batch and batch.qsl_count > 0 %}
+    <p>{{ batch.qsl_count }} QSL{{ "" if batch.qsl_count == 1 else "s" }} in this digest.</p>
+    {% include "components/qsl_table.html" %}
+  {% elif batch %}
+    <p>No new QSLs were found in this digest window.</p>
+  {% else %}
+    <p>No digest snapshot is available for this date.</p>
+  {% endif %}
+
+  <p><a href="{{ url_for('awards.qsls') }}">Back to Recent QSLs</a></p>
+{% endblock %}

@@ -14,3 +14,4 @@ python-dotenv==1.0.1
 SQLAlchemy==2.0.29
 typing_extensions==4.10.0
 stripe==11.6.0
+pywebpush==2.3.0

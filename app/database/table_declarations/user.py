@@ -1,13 +1,19 @@
 from datetime import date, datetime, timezone
 from json import dumps, loads
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from Crypto.Cipher import AES
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .qso_report import QSOReport
+
+if TYPE_CHECKING:
+    from .notification_delivery import NotificationDelivery
+    from .notification_preference import NotificationPreference
+    from .qsl_digest_batch import QSLDigestBatch
+    from .qso_report import QSOReport
+    from .web_push_subscription import WebPushSubscription
 
 
 class User(Base):
@@ -16,6 +22,12 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     op: Mapped[str] = mapped_column(index=True)
     email: Mapped[str | None]
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    timezone: Mapped[str] = mapped_column(String(length=64), default="UTC")
+    locale: Mapped[str | None] = mapped_column(String(length=16), nullable=True)
 
     lotw_cookies_b: Mapped[bytes | None]
     lotw_last_ok_at: Mapped[datetime | None] = mapped_column(
@@ -58,7 +70,20 @@ class User(Base):
         nullable=True,
     )
 
-    qso_reports: Mapped[list[QSOReport]] = relationship(back_populates="user")
+    qso_reports: Mapped[list["QSOReport"]] = relationship(back_populates="user")
+    notification_preference: Mapped["NotificationPreference | None"] = relationship(
+        back_populates="user",
+        uselist=False,
+    )
+    web_push_subscriptions: Mapped[list["WebPushSubscription"]] = relationship(
+        back_populates="user"
+    )
+    qsl_digest_batches: Mapped[list["QSLDigestBatch"]] = relationship(
+        back_populates="user"
+    )
+    notification_deliveries: Mapped[list["NotificationDelivery"]] = relationship(
+        back_populates="user"
+    )
 
     qso_reports_last_update: Mapped[date]
     qso_reports_last_update_time: Mapped[datetime | None] = mapped_column(
@@ -72,7 +97,7 @@ class User(Base):
         self,
         op: str,
         qso_reports_last_update: date = date(year=1970, month=1, day=1),
-        qso_reports: list[QSOReport] | None = None,
+        qso_reports: list["QSOReport"] | None = None,
         **kw: Any,
     ):
         self.op = op
