@@ -97,6 +97,21 @@
       return navigator.serviceWorker.register("/qsl-digest-sw.js", { scope: "/notifications/" });
     }
 
+    async function getAllLocalSubscriptions() {
+      if (!("serviceWorker" in navigator)) {
+        return [];
+      }
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const result = [];
+      for (const registration of registrations) {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          result.push({ registration, subscription });
+        }
+      }
+      return result;
+    }
+
     async function subscribePush() {
       if (!publicVapidKey) {
         updateStatus("Web push is not configured on this server.", true);
@@ -139,20 +154,26 @@
     }
 
     async function unsubscribePush() {
-      const registration = await getRegistration();
-      const subscription = await registration.pushManager.getSubscription();
-      if (!subscription) {
+      const subscriptions = await getAllLocalSubscriptions();
+      if (!subscriptions.length) {
         updateStatus("No active browser push subscription found.");
         return;
       }
 
-      const data = subscription.toJSON();
-      await fetch("/api/v1/notifications/web-push/unsubscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: data.endpoint }),
-      });
-      await subscription.unsubscribe();
+      const seenEndpoints = new Set();
+      for (const { subscription } of subscriptions) {
+        const data = subscription.toJSON();
+        if (data.endpoint && !seenEndpoints.has(data.endpoint)) {
+          seenEndpoints.add(data.endpoint);
+          await fetch("/api/v1/notifications/web-push/unsubscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ endpoint: data.endpoint }),
+          });
+        }
+        await subscription.unsubscribe();
+      }
+
       pushCount.textContent = "0";
       updateStatus("Browser push notifications are disabled.");
     }
