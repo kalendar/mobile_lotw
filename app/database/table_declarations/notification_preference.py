@@ -31,6 +31,11 @@ class NotificationPreference(Base):
         default="daily",
     )
     fallback_to_email: Mapped[bool] = mapped_column(default=True)
+    use_account_email_for_notifications: Mapped[bool] = mapped_column(default=True)
+    notification_email: Mapped[str | None] = mapped_column(
+        String(length=255),
+        nullable=True,
+    )
     quiet_hours_start_local: Mapped[time | None] = mapped_column(
         Time(),
         nullable=True,

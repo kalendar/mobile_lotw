@@ -2,7 +2,15 @@ from datetime import datetime, timezone
 from os import getenv
 from typing import Any
 
-from flask import current_app, jsonify, render_template, request, session, url_for
+from flask import (
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    request,
+    session,
+    url_for,
+)
 from sqlalchemy import select
 
 from ...database.queries import get_user
@@ -41,6 +49,16 @@ def _stripe_price_options() -> dict[str, str]:
         options["annual"] = annual_price_id
 
     return options
+
+
+def _checkout_redirect_urls(source: str) -> tuple[str, str]:
+    if source == "notifications_settings":
+        success = url_for("billing.notification_settings", _external=True) + "?checkout=success"
+        cancel = url_for("billing.notification_settings", _external=True) + "?checkout=cancel"
+        return success, cancel
+    success = url_for("billing.overview", _external=True) + "?checkout=success"
+    cancel = url_for("billing.overview", _external=True) + "?checkout=cancel"
+    return success, cancel
 
 
 def _timestamp_to_datetime(value: Any) -> datetime | None:
@@ -84,24 +102,11 @@ def _apply_subscription_to_user(
 @bp.get("/billing")
 @login_required(next_page="billing.overview")
 def overview():
-    with current_app.config.get("SESSION_MAKER").begin() as session_:
-        user = get_user(op=session.get("op"), session=session_)
-        subscription = {
-            "tier": user.plan_tier,
-            "status": user.subscription_status,
-            "current_period_end": user.subscription_current_period_end,
-            "entitlement_expires_at": user.entitlement_expires_at,
-            "stripe_customer_id": user.stripe_customer_id,
-            "stripe_subscription_id": user.stripe_subscription_id,
-        }
-
-    return render_template(
-        "billing.html",
-        title="Billing",
-        subscription=subscription,
-        stripe_ready=_stripe_ready(),
-        price_options=_stripe_price_options(),
+    flash(
+        "Billing and notification settings now live on the Notifications page.",
+        "info",
     )
+    return redirect(url_for("billing.notification_settings"))
 
 
 @bp.post("/api/v1/billing/create-checkout-session")
@@ -120,9 +125,11 @@ def create_checkout_session():
     payload = request.get_json(silent=True) or {}
     email = (payload.get("email") or "").strip() or None
     plan = (payload.get("plan") or "monthly").strip().lower()
+    source = (payload.get("source") or "").strip().lower()
     price_id = price_options.get(plan)
     if not price_id:
         return jsonify({"error": "invalid_plan"}), 400
+    success_url, cancel_url = _checkout_redirect_urls(source=source)
 
     with current_app.config.get("SESSION_MAKER").begin() as session_:
         user = get_user(op=session.get("op"), session=session_)
@@ -142,10 +149,8 @@ def create_checkout_session():
                 customer=user.stripe_customer_id,
                 line_items=[{"price": price_id, "quantity": 1}],
                 metadata={"selected_plan": plan},
-                success_url=url_for("billing.overview", _external=True)
-                + "?checkout=success",
-                cancel_url=url_for("billing.overview", _external=True)
-                + "?checkout=cancel",
+                success_url=success_url,
+                cancel_url=cancel_url,
                 allow_promotion_codes=True,
             )
         except Exception as error:  # noqa: BLE001
@@ -157,6 +162,39 @@ def create_checkout_session():
                 "checkout_url": checkout_session.url,
             }
         )
+
+
+@bp.post("/api/v1/billing/create-portal-session")
+@login_required()
+def create_portal_session():
+    stripe = _get_stripe()
+    if not stripe:
+        return jsonify({"error": "stripe_not_installed"}), 503
+
+    secret_key = getenv("STRIPE_SECRET_KEY")
+    if not secret_key:
+        return jsonify({"error": "stripe_not_configured"}), 503
+
+    stripe.api_key = secret_key
+    with current_app.config.get("SESSION_MAKER").begin() as session_:
+        user = get_user(op=session.get("op"), session=session_)
+        if not user.stripe_customer_id:
+            return jsonify({"error": "stripe_customer_missing"}), 400
+
+        try:
+            return_url = getenv("STRIPE_PORTAL_RETURN_URL") or url_for(
+                "billing.notification_settings",
+                _external=True,
+            )
+            portal = stripe.billing_portal.Session.create(
+                customer=user.stripe_customer_id,
+                return_url=return_url,
+            )
+        except Exception as error:  # noqa: BLE001
+            current_app.logger.exception("Stripe portal session creation failed.")
+            return jsonify({"error": "stripe_portal_failed", "detail": str(error)}), 502
+
+    return jsonify({"portal_url": portal.url})
 
 
 @bp.post("/api/v1/billing/webhook")

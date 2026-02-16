@@ -48,17 +48,14 @@
           </li>
 
           <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('map.view') }}"
-            >QSL Map <!--// i class="fa-solid fa-location-dot"></i
+            <a class="nav-link" href="{{ url_for('map.view') }}"
+              >QSL Map <!--// i class="fa-solid fa-location-dot"></i
           //--></a>
         </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('billing.notification_settings') }}"
-              >Alerts</a>
+              >Notifications</a>
           </li>
-          {% if config.get('BILLING_UI_ENABLED', False) %}
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('billing.overview') }}">Notifications</a></li>
-          {% endif %}
         {% endif %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">About</a></li>
         {% if not session.logged_in %}

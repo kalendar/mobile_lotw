@@ -1,80 +1,176 @@
 {% extends "index.html" %}
 
 {% block content %}
-  <form method="post" action="{{ settings_url }}" class="text-start mx-auto" style="max-width: 640px">
-    <div class="mb-3 form-check">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="qsl_digest_enabled"
-        name="qsl_digest_enabled"
-        {% if preference.qsl_digest_enabled %}checked{% endif %}
-      />
-      <label class="form-check-label" for="qsl_digest_enabled">Enable daily QSL digest notifications</label>
-    </div>
-
-    <div class="mb-3">
-      <label for="qsl_digest_time_local" class="form-label">Digest send time (local)</label>
-      <input
-        class="form-control"
-        type="time"
-        id="qsl_digest_time_local"
-        name="qsl_digest_time_local"
-        value="{{ preference.qsl_digest_time_local.strftime('%H:%M') }}"
-      />
-    </div>
-
-    <div class="mb-3">
-      <label for="timezone" class="form-label">Timezone (IANA)</label>
-      <select class="form-select" id="timezone" name="timezone">
-        {% for timezone_value, timezone_label in timezone_options %}
-          <option value="{{ timezone_value }}" {% if (user.timezone or "UTC") == timezone_value %}selected{% endif %}>
-            {{ timezone_label }}
-          </option>
-        {% endfor %}
-      </select>
-      <div class="form-text">Choose the timezone used for your daily digest send time.</div>
-    </div>
-
-    <div class="mb-3">
-      <label for="locale" class="form-label">Locale (optional)</label>
-      <input class="form-control" type="text" id="locale" name="locale" value="{{ user.locale or '' }}" />
-    </div>
-
-    <div class="mb-3 form-check">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="fallback_to_email"
-        name="fallback_to_email"
-        {% if preference.fallback_to_email %}checked{% endif %}
-      />
-      <label class="form-check-label" for="fallback_to_email">Fallback to email when web push is unavailable</label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save settings</button>
-  </form>
-
-  <hr class="my-4" />
-
-  <div class="text-start mx-auto" style="max-width: 640px">
-    <h4>Web Push</h4>
-    <p>
-      Active browser subscriptions: <strong id="push-count">{{ active_web_push_count }}</strong>
+  <div class="text-start mx-auto" style="max-width: 720px">
+    <h2 class="mb-3">Notifications</h2>
+    <p class="text-muted">
+      Daily digest status:
+      <strong>{{ subscription.tier|upper }}</strong>
+      {% if subscription.status %}
+        <span class="ms-1">({{ subscription.status }})</span>
+      {% endif %}
     </p>
-    <button id="enable-push-btn" class="btn btn-success me-2" type="button">Enable browser push</button>
-    <button id="disable-push-btn" class="btn btn-outline-secondary" type="button">Disable browser push</button>
-    <p class="mt-3 mb-0"><small id="push-status"></small></p>
+
+    {% if not has_paid_access %}
+      <div class="alert alert-warning" role="alert">
+        Notification delivery is part of the paid plan. Subscribe below to unlock settings.
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Subscribe To Notifications</h5>
+          {% if stripe_ready %}
+            <div class="mb-3">
+              <label for="billing-email" class="form-label">Billing email (optional)</label>
+              <input
+                class="form-control"
+                id="billing-email"
+                type="email"
+                value="{{ user.email or '' }}"
+                placeholder="you@example.com"
+              />
+              <div class="form-text">Used for Stripe checkout receipts and account billing.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Choose plan</label>
+              {% if price_options.get("monthly") %}
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="billing-plan" id="billing-plan-monthly" value="monthly" checked />
+                  <label class="form-check-label" for="billing-plan-monthly">Monthly</label>
+                </div>
+              {% endif %}
+              {% if price_options.get("annual") %}
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="billing-plan" id="billing-plan-annual" value="annual" {% if not price_options.get("monthly") %}checked{% endif %} />
+                  <label class="form-check-label" for="billing-plan-annual">Annual</label>
+                </div>
+              {% endif %}
+            </div>
+            <button id="start-checkout" class="btn btn-primary" type="button">Start Subscription</button>
+            <small id="billing-status" class="d-block mt-3"></small>
+          {% else %}
+            <p class="mb-0">Billing is not configured on this server yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" action="{{ settings_url }}" id="notification-settings-form">
+      <fieldset {% if not has_paid_access %}disabled{% endif %}>
+        <div class="mb-3 form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="qsl_digest_enabled"
+            name="qsl_digest_enabled"
+            {% if preference.qsl_digest_enabled %}checked{% endif %}
+          />
+          <label class="form-check-label" for="qsl_digest_enabled">Enable daily QSL digest notifications</label>
+        </div>
+
+        <div class="mb-3">
+          <label for="qsl_digest_time_local" class="form-label">Digest send time (local)</label>
+          <input
+            class="form-control"
+            type="time"
+            id="qsl_digest_time_local"
+            name="qsl_digest_time_local"
+            value="{{ preference.qsl_digest_time_local.strftime('%H:%M') }}"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="timezone" class="form-label">Timezone</label>
+          <select class="form-select" id="timezone" name="timezone">
+            {% for timezone_value, timezone_label in timezone_options %}
+              <option value="{{ timezone_value }}" {% if (user.timezone or "UTC") == timezone_value %}selected{% endif %}>
+                {{ timezone_label }}
+              </option>
+            {% endfor %}
+          </select>
+          <div class="form-text">Choose the timezone used for your daily digest send time.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="locale" class="form-label">Locale (optional)</label>
+          <input class="form-control" type="text" id="locale" name="locale" value="{{ user.locale or '' }}" />
+        </div>
+
+        <div class="mb-3 form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="fallback_to_email"
+            name="fallback_to_email"
+            {% if preference.fallback_to_email %}checked{% endif %}
+          />
+          <label class="form-check-label" for="fallback_to_email">Fallback to email when web push is unavailable</label>
+        </div>
+
+        <div class="mb-3 form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="use_account_email_for_notifications"
+            name="use_account_email_for_notifications"
+            {% if preference.use_account_email_for_notifications %}checked{% endif %}
+          />
+          <label class="form-check-label" for="use_account_email_for_notifications">Use account email for notification fallback</label>
+        </div>
+
+        <div class="mb-4">
+          <label for="notification_email" class="form-label">Preferred notification email</label>
+          <input
+            class="form-control"
+            type="email"
+            id="notification_email"
+            name="notification_email"
+            value="{{ preference.notification_email or '' }}"
+            placeholder="alerts@example.com"
+          />
+          <div class="form-text">Leave blank to disable email fallback when push fails.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save settings</button>
+      </fieldset>
+    </form>
+
+    {% if has_paid_access %}
+      <hr class="my-4" />
+      <div>
+        <h4>Web Push</h4>
+        <p>
+          Active browser subscriptions: <strong id="push-count">{{ active_web_push_count }}</strong>
+        </p>
+        <button id="enable-push-btn" class="btn btn-success me-2" type="button">Enable browser push</button>
+        <button id="disable-push-btn" class="btn btn-outline-secondary" type="button">Disable browser push</button>
+        <p class="mt-3 mb-0"><small id="push-status"></small></p>
+      </div>
+
+      {% if can_manage_subscription %}
+        <hr class="my-4" />
+        <div>
+          <h4>Subscription</h4>
+          <button id="manage-subscription-btn" class="btn btn-outline-secondary" type="button">Manage subscription</button>
+          <p class="mb-0 mt-2"><small id="manage-subscription-status"></small></p>
+        </div>
+      {% endif %}
+    {% endif %}
   </div>
 {% endblock %}
 
 {% block scripts %}
   <script>
+    const hasPaidAccess = {{ "true" if has_paid_access else "false" }};
     const pushStatus = document.getElementById("push-status");
     const pushCount = document.getElementById("push-count");
     const publicVapidKey = "{{ web_push_public_key }}";
 
     function updateStatus(message, isError = false) {
+      if (!pushStatus) {
+        return;
+      }
       pushStatus.textContent = message;
       pushStatus.style.color = isError ? "#b00020" : "inherit";
     }
@@ -178,20 +274,111 @@
       updateStatus("Browser push notifications are disabled.");
     }
 
-    document.getElementById("enable-push-btn").addEventListener("click", async () => {
-      try {
-        await subscribePush();
-      } catch (error) {
-        updateStatus(error.message || "Unable to enable push notifications.", true);
+    function wireCheckout() {
+      const checkoutButton = document.getElementById("start-checkout");
+      if (!checkoutButton) {
+        return;
       }
-    });
+      const billingStatus = document.getElementById("billing-status");
+      checkoutButton.addEventListener("click", async () => {
+        const selectedPlan = document.querySelector('input[name="billing-plan"]:checked')?.value || "monthly";
+        const emailInput = document.getElementById("billing-email");
+        const email = emailInput?.value?.trim() || "";
+        checkoutButton.disabled = true;
+        if (billingStatus) {
+          billingStatus.textContent = "Starting checkout...";
+        }
+        try {
+          const response = await fetch("{{ url_for('billing.create_checkout_session') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan: selectedPlan, email, source: "notifications_settings" }),
+          });
+          if (!response.ok) {
+            throw new Error("Unable to start checkout right now.");
+          }
+          const data = await response.json();
+          if (!data.checkout_url) {
+            throw new Error("Checkout session did not return a URL.");
+          }
+          window.location.href = data.checkout_url;
+        } catch (error) {
+          if (billingStatus) {
+            billingStatus.textContent = error.message || "Unable to start checkout.";
+            billingStatus.style.color = "#b00020";
+          }
+          checkoutButton.disabled = false;
+        }
+      });
+    }
 
-    document.getElementById("disable-push-btn").addEventListener("click", async () => {
-      try {
-        await unsubscribePush();
-      } catch (error) {
-        updateStatus(error.message || "Unable to disable push notifications.", true);
+    function wireSubscriptionPortal() {
+      const manageButton = document.getElementById("manage-subscription-btn");
+      if (!manageButton) {
+        return;
       }
-    });
+      const statusEl = document.getElementById("manage-subscription-status");
+      manageButton.addEventListener("click", async () => {
+        manageButton.disabled = true;
+        if (statusEl) {
+          statusEl.textContent = "Opening customer portal...";
+        }
+        try {
+          const response = await fetch("{{ url_for('billing.create_portal_session') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+          if (!response.ok) {
+            throw new Error("Unable to open billing portal.");
+          }
+          const data = await response.json();
+          if (!data.portal_url) {
+            throw new Error("Billing portal did not return a URL.");
+          }
+          window.location.href = data.portal_url;
+        } catch (error) {
+          if (statusEl) {
+            statusEl.textContent = error.message || "Unable to open billing portal.";
+            statusEl.style.color = "#b00020";
+          }
+          manageButton.disabled = false;
+        }
+      });
+    }
+
+    function wireNotificationEmailToggle() {
+      const useAccountEmail = document.getElementById("use_account_email_for_notifications");
+      const customEmail = document.getElementById("notification_email");
+      if (!useAccountEmail || !customEmail) {
+        return;
+      }
+      const updateState = () => {
+        customEmail.disabled = useAccountEmail.checked;
+      };
+      useAccountEmail.addEventListener("change", updateState);
+      updateState();
+    }
+
+    if (hasPaidAccess) {
+      document.getElementById("enable-push-btn")?.addEventListener("click", async () => {
+        try {
+          await subscribePush();
+        } catch (error) {
+          updateStatus(error.message || "Unable to enable push notifications.", true);
+        }
+      });
+
+      document.getElementById("disable-push-btn")?.addEventListener("click", async () => {
+        try {
+          await unsubscribePush();
+        } catch (error) {
+          updateStatus(error.message || "Unable to disable push notifications.", true);
+        }
+      });
+    }
+
+    wireCheckout();
+    wireSubscriptionPortal();
+    wireNotificationEmailToggle();
   </script>
 {% endblock %}

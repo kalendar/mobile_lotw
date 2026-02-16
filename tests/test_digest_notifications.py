@@ -103,13 +103,28 @@ class DigestNotificationTests(unittest.TestCase):
     def test_no_subscription_uses_email_fallback(self):
         with self.app.app_context():
             batch_id = self._seed_user_and_batch(add_subscription=False)
+            captured_to = {"value": None}
+
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                preference = ensure_notification_preference(
+                    user=ensure_user(op="k1abc", session=session_),
+                    session=session_,
+                )
+                preference.use_account_email_for_notifications = False
+                preference.notification_email = "alerts@example.com"
+
+            def _email_sender(message):
+                captured_to["value"] = message.get("To")
+                return "msg-1"
+
             result = dispatch_digest_notifications_for_batch(
                 batch_id=batch_id,
-                email_sender=lambda _message: "msg-1",
+                email_sender=_email_sender,
             )
 
             self.assertEqual(result["push_status"], "skipped")
             self.assertEqual(result["email_status"], "sent")
+            self.assertEqual(captured_to["value"], "alerts@example.com")
 
             with self.app.config.get("SESSION_MAKER").begin() as session_:
                 deliveries = session_.query(NotificationDelivery).all()

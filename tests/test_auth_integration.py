@@ -208,10 +208,10 @@ class SubscriptionGateTests(unittest.TestCase):
         payload = response.get_json()
         self.assertEqual(payload["error"], "subscription_required")
 
-    def test_paid_web_route_redirects_to_billing_when_subscription_required(self):
+    def test_paid_web_route_redirects_to_notifications_when_subscription_required(self):
         response = self.client.get("/map", follow_redirects=False)
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/billing", response.headers["Location"])
+        self.assertIn("/notifications/settings", response.headers["Location"])
 
 
 if __name__ == "__main__":
