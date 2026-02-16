@@ -165,6 +165,7 @@ os.environ['DIGEST_NOTIFICATIONS_ENABLED'] = "1"
 os.environ['WEB_PUSH_ENABLED'] = "1"
 os.environ['DIGEST_EMAIL_ENABLED'] = "1"
 os.environ['DIGEST_DRY_RUN'] = "0"
+os.environ['DIGEST_RETENTION_DAYS'] = "90"
 
 # Web push VAPID settings.
 os.environ['WEB_PUSH_VAPID_PUBLIC_KEY'] = "REPLACE_ME_NOW"
@@ -210,6 +211,14 @@ After deployment and migration:
 4. Run one digest generation cycle and confirm rows in:
    - `qsl_digest_batches`
    - `notification_deliveries`
+
+### Scheduled digest runner (recommended)
+
+Run the tracked runner script on a schedule (for example every 15 minutes):
+
+```cron
+*/15 * * * * /usr/bin/flock -n /tmp/mobile_lotw_digest.lock /var/www/mobile_lotw/mobile_lotw/.venv/bin/python /var/www/mobile_lotw/mobile_lotw/scripts/run_digest_cycle.py >> /var/www/mobile_lotw/mobile_lotw/logs/digest_runner.log 2>&1
+```
 
 ### Deploy endpoint hardening
 

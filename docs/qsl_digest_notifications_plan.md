@@ -335,6 +335,7 @@ Add env flags:
 - `WEB_PUSH_ENABLED`
 - `DIGEST_EMAIL_ENABLED`
 - `DIGEST_DRY_RUN` (logs intended sends without sending)
+- `DIGEST_RETENTION_DAYS` (delete old digest snapshots + deliveries)
 
 ### 6.3 Admin/debug tooling (lightweight)
 
@@ -415,6 +416,7 @@ Required for this feature:
 - `WEB_PUSH_ENABLED`
 - `DIGEST_EMAIL_ENABLED`
 - `DIGEST_DRY_RUN`
+- `DIGEST_RETENTION_DAYS`
 - `WEB_PUSH_VAPID_PUBLIC_KEY`
 - `WEB_PUSH_VAPID_PRIVATE_KEY`
 - `WEB_PUSH_VAPID_SUBJECT`

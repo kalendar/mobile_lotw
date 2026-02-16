@@ -99,6 +99,7 @@ def create_app() -> Flask:
         WEB_PUSH_ENABLED=_env_flag("WEB_PUSH_ENABLED", True),
         DIGEST_EMAIL_ENABLED=_env_flag("DIGEST_EMAIL_ENABLED", True),
         DIGEST_DRY_RUN=_env_flag("DIGEST_DRY_RUN", False),
+        DIGEST_RETENTION_DAYS=int(getenv("DIGEST_RETENTION_DAYS", "90")),
     )
 
     # Logging level

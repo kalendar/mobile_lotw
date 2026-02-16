@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from flask import current_app
-from sqlalchemy import select
+from sqlalchemy import delete, exists, select
 
 from ..database.queries import (
     ensure_notification_preference,
@@ -290,16 +290,70 @@ def dispatch_digest_notifications_for_batch(
         return result
 
 
+def purge_old_digest_data(*, retention_days: int) -> dict[str, int]:
+    if retention_days <= 0:
+        return {"deleted_batches": 0, "deleted_deliveries": 0}
+
+    cutoff_date = (datetime.now(tz=timezone.utc) - timedelta(days=retention_days)).date()
+    cutoff_dt = datetime.now(tz=timezone.utc) - timedelta(days=retention_days)
+
+    with current_app.config.get("SESSION_MAKER").begin() as session_:
+        old_batch_ids = select(QSLDigestBatch.id).where(
+            QSLDigestBatch.digest_date < cutoff_date
+        )
+        deleted_deliveries_for_batches = session_.execute(
+            delete(NotificationDelivery).where(
+                NotificationDelivery.digest_batch_id.in_(old_batch_ids)
+            )
+        )
+        deleted_batches = session_.execute(
+            delete(QSLDigestBatch).where(QSLDigestBatch.digest_date < cutoff_date)
+        )
+        deleted_standalone_deliveries = session_.execute(
+            delete(NotificationDelivery).where(
+                NotificationDelivery.digest_batch_id.is_(None),
+                NotificationDelivery.created_at < cutoff_dt,
+            )
+        )
+
+    deleted_deliveries = (
+        (deleted_deliveries_for_batches.rowcount or 0)
+        + (deleted_standalone_deliveries.rowcount or 0)
+    )
+    deleted_batch_count = deleted_batches.rowcount or 0
+    if deleted_batch_count or deleted_deliveries:
+        current_app.logger.info(
+            "Digest cleanup removed %s batches and %s deliveries (retention_days=%s)",
+            deleted_batch_count,
+            deleted_deliveries,
+            retention_days,
+        )
+    return {
+        "deleted_batches": deleted_batch_count,
+        "deleted_deliveries": deleted_deliveries,
+    }
+
+
 def dispatch_pending_digest_notifications(*, limit: int = 100) -> dict[str, int]:
     if not current_app.config.get("DIGEST_NOTIFICATIONS_ENABLED", True):
         current_app.logger.info("Digest dispatch skipped: DIGEST_NOTIFICATIONS_ENABLED=0")
         return {"processed": 0, "sent": 0, "failed": 0, "skipped": 0}
 
+    retention_days = int(current_app.config.get("DIGEST_RETENTION_DAYS", 90) or 0)
+    purge_old_digest_data(retention_days=retention_days)
+
     with current_app.config.get("SESSION_MAKER").begin() as session_:
+        sent_delivery_exists = exists(
+            select(NotificationDelivery.id).where(
+                NotificationDelivery.digest_batch_id == QSLDigestBatch.id,
+                NotificationDelivery.status == "sent",
+            )
+        )
         batch_ids = list(
             session_.scalars(
                 select(QSLDigestBatch.id)
                 .where(QSLDigestBatch.qsl_count > 0)
+                .where(~sent_delivery_exists)
                 .order_by(QSLDigestBatch.generated_at.asc())
                 .limit(limit)
             )
