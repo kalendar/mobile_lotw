@@ -241,19 +241,21 @@ Acceptance criteria:
 
 Goal: provide settings, subscription registration, and deterministic destination page.
 
-### 5.1 Notification settings page (paid-gated)
+### 5.1 Notification settings page (single destination)
 
 Add UI and routes for:
 
 - enable/disable daily digest
 - select local delivery time
 - toggle email fallback
+- choose notification email destination (separate from billing email)
 - configure timezone
 - browser push opt-in status
 
-Use existing paid gating pattern:
+Use `/notifications/settings` as the single destination:
 
-- `app/blueprints/auth/wrappers.py` (`paid_required`)
+- free users: show settings as read-only plus inline billing checkout options
+- paid users: show editable settings and subscription management entrypoint
 
 ### 5.2 Web push subscription API
 
@@ -428,7 +430,10 @@ Reference defaults are documented in `example.env`.
 
 ### 3) Run DB migrations
 
-This feature depends on migration `20260214_03`.
+This feature depends on:
+
+- `20260214_03_qsl_digest_notification_foundation.py`
+- `20260215_04_notification_email_preferences.py`
 
 ```sh
 .venv/bin/alembic upgrade head
@@ -462,11 +467,13 @@ Expected new objects:
 
 ### 5) Post-deploy checks
 
-1. Visit `/notifications/settings` as a paid user and save settings.
-2. Subscribe/unsubscribe browser push and verify `web_push_subscriptions` updates.
-3. Confirm digest generation creates/updates `qsl_digest_batches`.
-4. Confirm dispatch writes `notification_deliveries` rows for `web_push` and/or `email`.
-5. Open `/qsl/digest?date=YYYY-MM-DD` and verify the list matches `payload_json`.
+1. Visit `/notifications/settings` as a free user and confirm locked settings + inline billing.
+2. Complete checkout and return to `/notifications/settings`.
+3. As a paid user, save settings including preferred notification email.
+4. Subscribe/unsubscribe browser push and verify `web_push_subscriptions` updates.
+5. Confirm digest generation creates/updates `qsl_digest_batches`.
+6. Confirm dispatch writes `notification_deliveries` rows for `web_push` and/or `email`.
+7. Open `/qsl/digest?date=YYYY-MM-DD` and verify the list matches `payload_json`.
 
 ## File-by-file execution map
 
@@ -493,4 +500,4 @@ Likely files to add/update in order:
 - Which email provider to use (SMTP vs API provider).
 - Which web-push library/provider to standardize on.
 - Whether email verification is mandatory before fallback sends.
-- Exact paid gating UX (read-only prompt vs hard redirect to billing).
+- Paid gating UX resolved: read-only settings + inline billing on `/notifications/settings`.

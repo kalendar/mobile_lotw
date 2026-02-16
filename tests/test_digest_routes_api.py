@@ -96,6 +96,7 @@ class DigestRoutesApiTests(unittest.TestCase):
                 "timezone": "America/New_York",
                 "locale": "en-US",
                 "fallback_to_email": "on",
+                "notification_email": "alerts@example.com",
             },
             follow_redirects=True,
         )
@@ -108,6 +109,59 @@ class DigestRoutesApiTests(unittest.TestCase):
                 self.assertEqual(user.locale, "en-US")
                 self.assertEqual(preference.qsl_digest_time_local.hour, 9)
                 self.assertEqual(preference.qsl_digest_time_local.minute, 30)
+                self.assertFalse(preference.use_account_email_for_notifications)
+                self.assertEqual(preference.notification_email, "alerts@example.com")
+
+    def test_notification_settings_post_rejected_for_free_user(self):
+        with self.app.app_context():
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                user = get_user(op="k1abc", session=session_)
+                preference = user.notification_preference
+                user.subscription_status = "inactive"
+                user.entitlement_expires_at = None
+                user.timezone = "UTC"
+                user.locale = None
+                preference.qsl_digest_enabled = True
+                preference.use_account_email_for_notifications = True
+                preference.notification_email = None
+
+        response = self.client.post(
+            "/notifications/settings",
+            data={
+                "timezone": "America/Chicago",
+                "locale": "en-US",
+                "qsl_digest_time_local": "10:15",
+                "notification_email": "free-user@example.com",
+            },
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "An active subscription is required to change notification settings.",
+            response.get_data(as_text=True),
+        )
+
+        with self.app.app_context():
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                user = get_user(op="k1abc", session=session_)
+                preference = user.notification_preference
+                self.assertEqual(user.timezone, "UTC")
+                self.assertIsNone(user.locale)
+                self.assertTrue(preference.qsl_digest_enabled)
+                self.assertTrue(preference.use_account_email_for_notifications)
+                self.assertIsNone(preference.notification_email)
+
+    def test_notification_settings_get_for_free_user_shows_billing_card(self):
+        with self.app.app_context():
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                user = get_user(op="k1abc", session=session_)
+                user.subscription_status = "inactive"
+                user.entitlement_expires_at = None
+
+        response = self.client.get("/notifications/settings")
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("Subscribe To Notifications", body)
 
     def test_web_push_subscribe_and_unsubscribe(self):
         subscribe_response = self.client.post(

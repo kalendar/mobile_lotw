@@ -38,9 +38,11 @@ def send_qsl_digest_email(
     user: User,
     batch: QSLDigestBatch,
     digest_url: str,
+    recipient_email: str | None = None,
     send_callable=None,
 ) -> str:
-    if not user.email:
+    to_email = (recipient_email or user.email or "").strip()
+    if not to_email:
         raise DigestEmailSendError("missing_recipient_email")
 
     sender = send_callable or _default_send_callable
@@ -49,7 +51,7 @@ def send_qsl_digest_email(
     msg = EmailMessage()
     msg["Subject"] = f"Daily QSL Digest: {batch.qsl_count} new QSLs"
     msg["From"] = from_email
-    msg["To"] = user.email
+    msg["To"] = to_email
     msg["Date"] = datetime.now(tz=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
     msg.set_content(
         "\n".join(

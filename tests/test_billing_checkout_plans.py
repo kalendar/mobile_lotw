@@ -13,6 +13,7 @@ class _FakeStripe:
     api_key = None
     customer_kwargs = None
     checkout_kwargs = None
+    portal_kwargs = None
 
     class Customer:
         @staticmethod
@@ -26,6 +27,13 @@ class _FakeStripe:
             def create(**kwargs):
                 _FakeStripe.checkout_kwargs = kwargs
                 return SimpleNamespace(url="https://stripe.test/checkout")
+
+    class billing_portal:
+        class Session:
+            @staticmethod
+            def create(**kwargs):
+                _FakeStripe.portal_kwargs = kwargs
+                return SimpleNamespace(url="https://stripe.test/portal")
 
 
 class BillingCheckoutPlanTests(unittest.TestCase):
@@ -116,6 +124,46 @@ class BillingCheckoutPlanTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         payload = response.get_json()
         self.assertEqual(payload["error"], "invalid_plan")
+
+    @patch("app.blueprints.billing.overview._get_stripe", return_value=_FakeStripe)
+    def test_checkout_from_notifications_source_redirects_to_notifications(self, _mock_get_stripe):
+        _FakeStripe.checkout_kwargs = None
+
+        response = self.client.post(
+            "/api/v1/billing/create-checkout-session",
+            json={"plan": "monthly", "source": "notifications_settings"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(_FakeStripe.checkout_kwargs)
+        self.assertIn(
+            "/notifications/settings?checkout=success",
+            _FakeStripe.checkout_kwargs["success_url"],
+        )
+        self.assertIn(
+            "/notifications/settings?checkout=cancel",
+            _FakeStripe.checkout_kwargs["cancel_url"],
+        )
+
+    @patch("app.blueprints.billing.overview._get_stripe", return_value=_FakeStripe)
+    def test_create_portal_session_returns_url(self, _mock_get_stripe):
+        _FakeStripe.portal_kwargs = None
+        with self.app.app_context():
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                user = ensure_user(op="k1abc", session=session_)
+                user.stripe_customer_id = "cus_test_123"
+
+        response = self.client.post("/api/v1/billing/create-portal-session", json={})
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertEqual(payload["portal_url"], "https://stripe.test/portal")
+        self.assertIsNotNone(_FakeStripe.portal_kwargs)
+        self.assertEqual(_FakeStripe.portal_kwargs["customer"], "cus_test_123")
+
+    def test_billing_overview_redirects_to_notifications_page(self):
+        response = self.client.get("/billing", follow_redirects=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/notifications/settings", response.headers.get("Location", ""))
 
 
 if __name__ == "__main__":

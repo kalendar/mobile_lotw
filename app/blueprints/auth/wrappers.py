@@ -56,7 +56,7 @@ def login_required(next_page: str = "awards.qsls"):
     return decorator
 
 
-def paid_required(next_page: str = "billing.overview"):
+def paid_required(next_page: str = "billing.notification_settings"):
     def decorator(view):
         @wraps(view)
         def decorated_view(*args, **kwargs):
@@ -85,7 +85,10 @@ def paid_required(next_page: str = "billing.overview"):
                     flash("An active subscription is required for this feature.", "warning")
                     return redirect(
                         url_for(
-                            sanitize_next_page(next_page=next_page, default="billing.overview")
+                            sanitize_next_page(
+                                next_page=next_page,
+                                default="billing.notification_settings",
+                            )
                         )
                     )
             return view(*args, **kwargs)

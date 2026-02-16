@@ -24,6 +24,19 @@ def _digest_url(batch: QSLDigestBatch) -> str:
     return path
 
 
+def _notification_recipient_email(*, user, preference) -> str | None:
+    if not preference:
+        return (user.email or "").strip() or None
+
+    if preference.use_account_email_for_notifications:
+        return (user.email or "").strip() or None
+
+    custom = (preference.notification_email or "").strip()
+    if custom:
+        return custom
+    return None
+
+
 def _upsert_delivery(
     *,
     user_id: int,
@@ -71,6 +84,10 @@ def dispatch_digest_notifications_for_batch(
             raise ValueError(f"Digest batch {batch_id} does not exist.")
         user = batch.user
         preference = ensure_notification_preference(user=user, session=session_)
+        recipient_email = _notification_recipient_email(
+            user=user,
+            preference=preference,
+        )
         digest_url = _digest_url(batch=batch)
         digest_enabled = current_app.config.get("DIGEST_NOTIFICATIONS_ENABLED", True)
         web_push_enabled = current_app.config.get("WEB_PUSH_ENABLED", True)
@@ -236,6 +253,7 @@ def dispatch_digest_notifications_for_batch(
                     user=user,
                     batch=batch,
                     digest_url=digest_url,
+                    recipient_email=recipient_email,
                     send_callable=email_sender,
                 )
                 email_status = "sent"

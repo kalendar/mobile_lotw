@@ -150,12 +150,15 @@ os.environ['DEPLOY_ALLOWED_IPS'] = "127.0.0.1,10.0.0.1"
 os.environ['DEPLOY_SCRIPT_PATH'] = "/path/to/your/deploy/script"
 
 # Optional Stripe settings for billing/subscriptions.
+os.environ['BILLING_UI_ENABLED'] = "1"
 os.environ['STRIPE_SECRET_KEY'] = "REPLACE_ME_NOW"
 os.environ['STRIPE_WEBHOOK_SECRET'] = "REPLACE_ME_NOW"
 os.environ['STRIPE_PRICE_ID_MONTHLY'] = "price_REPLACE_ME"
 os.environ['STRIPE_PRICE_ID_ANNUAL'] = "price_REPLACE_ME"
 # Optional backward-compatible fallback if monthly key is not set:
 os.environ['STRIPE_PRICE_ID'] = "price_REPLACE_ME"
+# Optional return URL after Stripe billing-portal management.
+os.environ['STRIPE_PORTAL_RETURN_URL'] = "https://mobilelotw.org/notifications/settings"
 
 # QSL digest notification controls.
 os.environ['DIGEST_NOTIFICATIONS_ENABLED'] = "1"
@@ -190,12 +193,18 @@ Run Alembic migrations after deployment changes that add columns or tables:
 alembic upgrade head
 ```
 
+Current notification/billing rollout requires at least:
+- `20260214_03_qsl_digest_notification_foundation.py`
+- `20260215_04_notification_email_preferences.py`
+
 ### QSL digest production verification
 
 After deployment and migration:
-1. Verify `/notifications/settings` loads for a paid user.
+1. Verify `/notifications/settings` is the single notifications destination:
+   - free user sees locked settings and inline billing options
+   - paid user sees editable settings (including preferred notification email)
 2. Verify `/qsl/digest?date=YYYY-MM-DD` returns a digest page.
-3. Verify browser push subscription API works:
+3. Verify browser push subscription API works for paid users:
    - `POST /api/v1/notifications/web-push/subscribe`
    - `POST /api/v1/notifications/web-push/unsubscribe`
 4. Run one digest generation cycle and confirm rows in:
