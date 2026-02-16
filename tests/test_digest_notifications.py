@@ -1,9 +1,11 @@
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, time, timedelta, timezone
 import os
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+
+from sqlalchemy import select
 
 from app import create_app
 from app.database.queries import ensure_notification_preference, ensure_user
@@ -12,7 +14,10 @@ from app.database.table_declarations import (
     QSLDigestBatch,
     WebPushSubscription,
 )
-from app.services.digest_notifications import dispatch_digest_notifications_for_batch
+from app.services.digest_notifications import (
+    dispatch_digest_notifications_for_batch,
+    dispatch_pending_digest_notifications,
+)
 
 
 class DigestNotificationTests(unittest.TestCase):
@@ -40,7 +45,13 @@ class DigestNotificationTests(unittest.TestCase):
         self._env.stop()
         self._temp_dir.cleanup()
 
-    def _seed_user_and_batch(self, *, add_subscription: bool) -> int:
+    def _seed_user_and_batch(
+        self,
+        *,
+        add_subscription: bool,
+        digest_date: date = date(2026, 2, 14),
+        qsl_count: int = 2,
+    ) -> int:
         with self.app.config.get("SESSION_MAKER").begin() as session_:
             user = ensure_user(op="k1abc", session=session_)
             user.subscription_status = "active"
@@ -69,10 +80,25 @@ class DigestNotificationTests(unittest.TestCase):
 
             batch = QSLDigestBatch(
                 user_id=user.id,
-                digest_date=date(2026, 2, 14),
-                window_start_utc=datetime(2026, 2, 13, 8, 0, tzinfo=timezone.utc),
-                window_end_utc=datetime(2026, 2, 14, 8, 0, tzinfo=timezone.utc),
-                qsl_count=2,
+                digest_date=digest_date,
+                window_end_utc=datetime(
+                    digest_date.year,
+                    digest_date.month,
+                    digest_date.day,
+                    8,
+                    0,
+                    tzinfo=timezone.utc,
+                ),
+                window_start_utc=datetime(
+                    digest_date.year,
+                    digest_date.month,
+                    digest_date.day,
+                    8,
+                    0,
+                    tzinfo=timezone.utc,
+                )
+                - timedelta(days=1),
+                qsl_count=qsl_count,
                 payload_json={"qso_ids": [1, 2], "items": []},
             )
             session_.add(batch)
@@ -180,6 +206,72 @@ class DigestNotificationTests(unittest.TestCase):
             )
             self.assertEqual(result["push_status"], "skipped")
             self.assertEqual(result["email_status"], "sent")
+
+    def test_dispatch_pending_skips_already_sent_batches(self):
+        with self.app.app_context():
+            old_batch_id = self._seed_user_and_batch(
+                add_subscription=False,
+                digest_date=date(2026, 2, 13),
+            )
+            new_batch_id = self._seed_user_and_batch(
+                add_subscription=False,
+                digest_date=date(2026, 2, 14),
+            )
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                user = ensure_user(op="k1abc", session=session_)
+                session_.add(
+                    NotificationDelivery(
+                        user_id=user.id,
+                        digest_batch_id=old_batch_id,
+                        channel="web_push",
+                        status="sent",
+                    )
+                )
+
+            result = dispatch_pending_digest_notifications(limit=1)
+            self.assertEqual(result["processed"], 1)
+
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                new_batch_delivery = session_.scalar(
+                    select(NotificationDelivery).where(
+                        NotificationDelivery.digest_batch_id == new_batch_id,
+                        NotificationDelivery.channel == "web_push",
+                    )
+                )
+                self.assertIsNotNone(new_batch_delivery)
+
+    def test_dispatch_pending_cleans_up_old_digest_rows(self):
+        with self.app.app_context():
+            self.app.config["DIGEST_RETENTION_DAYS"] = 1
+            old_batch_id = self._seed_user_and_batch(
+                add_subscription=False,
+                digest_date=date(2020, 1, 1),
+                qsl_count=1,
+            )
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                user = ensure_user(op="k1abc", session=session_)
+                session_.add(
+                    NotificationDelivery(
+                        user_id=user.id,
+                        digest_batch_id=old_batch_id,
+                        channel="email",
+                        status="failed",
+                    )
+                )
+
+            dispatch_pending_digest_notifications(limit=10)
+
+            with self.app.config.get("SESSION_MAKER").begin() as session_:
+                old_batch = session_.scalar(
+                    select(QSLDigestBatch).where(QSLDigestBatch.id == old_batch_id)
+                )
+                old_delivery = session_.scalar(
+                    select(NotificationDelivery).where(
+                        NotificationDelivery.digest_batch_id == old_batch_id
+                    )
+                )
+                self.assertIsNone(old_batch)
+                self.assertIsNone(old_delivery)
 
 
 if __name__ == "__main__":
