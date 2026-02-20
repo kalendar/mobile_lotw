@@ -11,8 +11,20 @@ def get_25_most_recent_rxqsls(
         select(QSOReport)
         .join(User)
         .where(User.id == user.id)
-        .order_by(QSOReport.app_lotw_rxqsl.desc())
-        .limit(25)
+        .where(QSOReport.app_lotw_rxqsl.is_not(None))
+        .order_by(QSOReport.app_lotw_rxqsl.desc(), QSOReport.id.desc())
+        .limit(250)
     )
+    rows = session.scalars(stmt).all()
+    unique_rows: list[QSOReport] = []
+    seen_keys: set[tuple] = set()
+    for row in rows:
+        key = (row.app_lotw_qso_timestamp, row.call)
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        unique_rows.append(row)
+        if len(unique_rows) >= 25:
+            break
 
-    return session.scalars(stmt).all()
+    return unique_rows
