@@ -16,6 +16,22 @@ from ..database.table_declarations import QSOReport
 from ..urls import QSOS_URL
 
 
+def _report_key(qso_report: DCQSOReport) -> tuple[datetime | None, str | None]:
+    return (qso_report.app_lotw_qso_timestamp, qso_report.call)
+
+
+def _prefer_incoming_report(existing: DCQSOReport, incoming: DCQSOReport) -> bool:
+    existing_score = (
+        1 if existing.app_lotw_rxqsl is not None else 0,
+        1 if existing.app_lotw_rxqso is not None else 0,
+    )
+    incoming_score = (
+        1 if incoming.app_lotw_rxqsl is not None else 0,
+        1 if incoming.app_lotw_rxqso is not None else 0,
+    )
+    return incoming_score > existing_score
+
+
 def _set_qso_sync_state(
     op: str,
     status: str,
@@ -43,20 +59,33 @@ def _add_reports_to_db(
     has_imported: bool,
     session_: Session,
 ) -> tuple[int, int]:
+    deduped_reports: dict[tuple[datetime | None, str | None], DCQSOReport] = {}
+    for qso_report in qso_reports:
+        key = _report_key(qso_report)
+        existing = deduped_reports.get(key)
+        if existing is None or _prefer_incoming_report(existing, qso_report):
+            deduped_reports[key] = qso_report
+    unique_reports = list(deduped_reports.values())
+    duplicate_count = len(qso_reports) - len(unique_reports)
+    if duplicate_count > 0:
+        current_app.logger.warning(
+            "Collapsed %s duplicate QSO rows from LoTW payload for user_id=%s",
+            duplicate_count,
+            user_id,
+        )
+
     # Bulk fetch existing reports if user has imported before
     existing_reports: dict = {}
     if has_imported:
-        timestamp_call_pairs = [
-            (qr.app_lotw_qso_timestamp, qr.call) for qr in qso_reports
-        ]
+        timestamp_call_pairs = [_report_key(qr) for qr in unique_reports]
         existing_reports = get_qso_reports_by_timestamps(
             timestamp_call_pairs, user_id, session_
         )
 
     inserted = 0
     updated = 0
-    for qso_report in qso_reports:
-        key = (qso_report.app_lotw_qso_timestamp, qso_report.call)
+    for qso_report in unique_reports:
+        key = _report_key(qso_report)
         report = existing_reports.get(key) if has_imported else None
 
         if not report:
